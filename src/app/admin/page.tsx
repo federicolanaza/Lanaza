@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from 'react'
@@ -12,6 +11,8 @@ import { AiTrends } from '@/components/admin/AiTrends'
 import { VisitorChart } from '@/components/admin/VisitorChart'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useToast } from '@/hooks/use-toast'
+import { Toaster } from '@/components/ui/toaster'
 import { 
   LayoutDashboard, 
   Users, 
@@ -28,6 +29,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 
 export default function AdminPage() {
   const { currentUser, logout, visits } = useStore()
+  const { toast } = useToast()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState('overview')
 
@@ -36,6 +38,11 @@ export default function AdminPage() {
   useEffect(() => {
     if (!currentUser || currentUser.role !== 'Admin') {
       router.push('/admin/login')
+    } else {
+      toast({
+        title: "Welcome to NEU Library!",
+        description: "Administrative access granted.",
+      })
     }
   }, [currentUser, router])
 
@@ -227,6 +234,7 @@ export default function AdminPage() {
           </Tabs>
         </div>
       </main>
+      <Toaster />
     </div>
   )
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { useStore } from '@/lib/store'
@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
 import { Toaster } from '@/components/ui/toaster'
-import { LogOut, CheckCircle2, MapPin, Sparkles, BookOpen } from 'lucide-react'
+import { LogOut, CheckCircle2, MapPin, Sparkles } from 'lucide-react'
 
 const DEPARTMENTS = [
   'College of Engineering',
@@ -44,6 +44,15 @@ export default function VisitorPage() {
   })
 
   const logo = PlaceHolderImages.find(img => img.id === 'neu-logo')
+
+  useEffect(() => {
+    if (currentUser) {
+      toast({
+        title: "Welcome to NEU Library!",
+        description: `Logged in as ${currentUser.name}`,
+      })
+    }
+  }, [])
 
   if (!currentUser) return null
 
@@ -133,36 +142,30 @@ export default function VisitorPage() {
             <form onSubmit={handleSubmit} className="space-y-8">
               <div className="space-y-3">
                 <Label htmlFor="department" className="text-sm font-bold text-slate-700">College Department</Label>
-                <Select 
-                  onValueChange={(v) => setFormData(prev => ({ ...prev, department: v }))}
+                <select 
+                  className="flex h-12 w-full items-center justify-between rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
+                  onChange={(e) => setFormData(prev => ({ ...prev, department: e.target.value }))}
                   value={formData.department}
                 >
-                  <SelectTrigger className="bg-slate-50 border-slate-200 h-12 focus:ring-primary/20">
-                    <SelectValue placeholder="Select your department" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {DEPARTMENTS.map(dept => (
-                      <SelectItem key={dept} value={dept}>{dept}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <option value="" disabled>Select your department</option>
+                  {DEPARTMENTS.map(dept => (
+                    <option key={dept} value={dept}>{dept}</option>
+                  ))}
+                </select>
               </div>
 
               <div className="space-y-3">
                 <Label htmlFor="purpose" className="text-sm font-bold text-slate-700">Purpose of Visit</Label>
-                <Select 
-                  onValueChange={(v) => setFormData(prev => ({ ...prev, reasonForVisit: v }))}
+                <select 
+                  className="flex h-12 w-full items-center justify-between rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
+                  onChange={(e) => setFormData(prev => ({ ...prev, reasonForVisit: e.target.value }))}
                   value={formData.reasonForVisit}
                 >
-                  <SelectTrigger className="bg-slate-50 border-slate-200 h-12 focus:ring-primary/20">
-                    <SelectValue placeholder="What is your primary purpose?" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {PURPOSES.map(purpose => (
-                      <SelectItem key={purpose} value={purpose}>{purpose}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <option value="" disabled>What is your primary purpose?</option>
+                  {PURPOSES.map(purpose => (
+                    <option key={purpose} value={purpose}>{purpose}</option>
+                  ))}
+                </select>
               </div>
 
               <Button type="submit" className="w-full bg-primary hover:bg-primary/90 py-7 text-lg font-bold shadow-xl shadow-primary/20 transition-all active:scale-[0.98]" disabled={isSubmitting}>
