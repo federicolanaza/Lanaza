@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
 import { Toaster } from '@/components/ui/toaster'
-import { LogOut, CheckCircle2 } from 'lucide-react'
+import { LogOut, CheckCircle2, MapPin, Sparkles } from 'lucide-react'
 
 const DEPARTMENTS = [
   'College of Engineering',
@@ -47,8 +47,8 @@ export default function VisitorPage() {
     e.preventDefault()
     if (!formData.department || !formData.reasonForVisit) {
       toast({
-        title: "Incomplete Form",
-        description: "Please fill in all fields before submitting.",
+        title: "Information Required",
+        description: "Please select your department and provide a reason for your visit.",
         variant: "destructive"
       })
       return
@@ -58,9 +58,8 @@ export default function VisitorPage() {
     setTimeout(() => {
       addVisit(formData)
       toast({
-        title: "Welcome to NEU Library!",
-        description: "Your check-in was successful. Enjoy your stay!",
-        variant: "default",
+        title: "Check-in Complete!",
+        description: "Welcome back to the library. Have a productive session!",
       })
       setFormData({ department: '', reasonForVisit: '' })
       setIsSubmitting(false)
@@ -68,11 +67,11 @@ export default function VisitorPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <nav className="border-b bg-card">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
+    <div className="min-h-screen bg-slate-50">
+      <nav className="border-b bg-white shadow-sm sticky top-0 z-10">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="relative h-10 w-10 overflow-hidden rounded-full border border-primary/20 bg-white p-0.5">
+            <div className="relative h-10 w-10 overflow-hidden rounded-full border border-primary/20 bg-white p-1">
               <Image 
                 src={logo?.imageUrl || ''} 
                 alt="NEU Logo" 
@@ -81,42 +80,55 @@ export default function VisitorPage() {
                 data-ai-hint={logo?.imageHint}
               />
             </div>
-            <span className="font-headline text-xl font-bold text-primary">LibreConnect</span>
+            <div>
+              <span className="font-headline text-xl font-bold text-slate-900 block leading-none tracking-tight">LibreConnect</span>
+              <span className="text-[10px] text-muted-foreground uppercase font-semibold tracking-widest mt-1">Visitor Portal</span>
+            </div>
           </div>
-          <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-foreground">
-            <LogOut className="mr-2 h-4 w-4" />
-            Logout
-          </Button>
+          <div className="flex items-center gap-4">
+             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 text-[11px] font-medium text-slate-600">
+               <MapPin className="h-3 w-3" />
+               Main Library
+             </div>
+             <Button variant="ghost" size="sm" onClick={handleLogout} className="text-slate-500 hover:text-destructive transition-colors">
+               <LogOut className="mr-2 h-4 w-4" />
+               Exit
+             </Button>
+          </div>
         </div>
       </nav>
 
-      <main className="mx-auto max-w-xl px-4 py-12">
-        <div className="mb-8 text-center">
-          <h1 className="font-headline text-3xl font-bold text-foreground">Library Check-in</h1>
-          <p className="mt-2 text-muted-foreground">Please provide a few details for your visit today.</p>
+      <main className="mx-auto max-w-xl px-6 py-12">
+        <div className="mb-10 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest mb-4">
+             <Sparkles className="h-3 w-3" />
+             Institutional Access
+          </div>
+          <h1 className="font-headline text-4xl font-black text-slate-900 tracking-tight">Welcome, {currentUser.name.split(' ')[0]}!</h1>
+          <p className="mt-3 text-slate-600 font-medium">Please finalize your check-in to access library resources.</p>
         </div>
 
-        <Card className="border-none shadow-xl">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                <CheckCircle2 className="h-5 w-5 text-primary" />
+        <Card className="border-none shadow-2xl ring-1 ring-slate-200">
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary shadow-lg shadow-primary/20">
+                <CheckCircle2 className="h-6 w-6 text-white" />
               </div>
               <div>
-                <CardTitle className="text-lg">Visitor Information</CardTitle>
-                <CardDescription>Logged in as {currentUser.email}</CardDescription>
+                <CardTitle className="text-xl">Entry Declaration</CardTitle>
+                <CardDescription className="font-medium">{currentUser.email}</CardDescription>
               </div>
             </div>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="department">College Department</Label>
+          <CardContent className="pt-4">
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="space-y-3">
+                <Label htmlFor="department" className="text-sm font-bold text-slate-700">College Department</Label>
                 <Select 
                   onValueChange={(v) => setFormData(prev => ({ ...prev, department: v }))}
                   value={formData.department}
                 >
-                  <SelectTrigger className="bg-muted/30 border-muted">
+                  <SelectTrigger className="bg-slate-50 border-slate-200 h-12 focus:ring-primary/20">
                     <SelectValue placeholder="Select your department" />
                   </SelectTrigger>
                   <SelectContent>
@@ -127,29 +139,34 @@ export default function VisitorPage() {
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="reason">Reason for Visit</Label>
+              <div className="space-y-3">
+                <Label htmlFor="reason" className="text-sm font-bold text-slate-700">Purpose of Visit</Label>
                 <Textarea
                   id="reason"
-                  placeholder="e.g., Research, Group Study, Printing services..."
-                  className="min-h-[120px] bg-muted/30 border-muted resize-none"
+                  placeholder="e.g., Thesis research, Group consultation, Book borrowing..."
+                  className="min-h-[140px] bg-slate-50 border-slate-200 resize-none p-4 focus:ring-primary/20"
                   value={formData.reasonForVisit}
                   onChange={(e) => setFormData(prev => ({ ...prev, reasonForVisit: e.target.value }))}
                 />
               </div>
 
-              <Button type="submit" className="w-full bg-primary hover:bg-primary/90 py-6 text-lg font-medium" disabled={isSubmitting}>
-                {isSubmitting ? 'Checking in...' : 'Submit Check-in'}
+              <Button type="submit" className="w-full bg-primary hover:bg-primary/90 py-7 text-lg font-bold shadow-xl shadow-primary/20 transition-all active:scale-[0.98]" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  'Validating Credentials...'
+                ) : (
+                  'Confirm Check-in'
+                )}
               </Button>
             </form>
           </CardContent>
         </Card>
 
-        <div className="mt-8 rounded-xl bg-accent/5 p-4 text-center">
-          <p className="text-sm text-muted-foreground">
-            Thank you for helping us improve library services through accurate data collection.
+        <footer className="mt-12 text-center">
+          <p className="text-xs text-slate-400 font-medium leading-relaxed">
+            By checking in, you agree to comply with the <br />
+            <span className="underline cursor-pointer hover:text-primary">Library Code of Conduct</span> and data privacy policies.
           </p>
-        </div>
+        </footer>
       </main>
       <Toaster />
     </div>

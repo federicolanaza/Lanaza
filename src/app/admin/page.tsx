@@ -8,6 +8,7 @@ import { PlaceHolderImages } from '@/lib/placeholder-images'
 import { StatCards } from '@/components/admin/StatCards'
 import { UserTable } from '@/components/admin/UserTable'
 import { AiTrends } from '@/components/admin/AiTrends'
+import { VisitorChart } from '@/components/admin/VisitorChart'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { 
@@ -17,7 +18,8 @@ import {
   LogOut, 
   Bell,
   Search as SearchIcon,
-  Settings
+  Settings,
+  ArrowUpRight
 } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Input } from '@/components/ui/input'
@@ -31,12 +33,12 @@ export default function AdminPage() {
   const logo = PlaceHolderImages.find(img => img.id === 'neu-logo')
 
   useEffect(() => {
-    if (currentUser?.role !== 'Admin') {
+    if (!currentUser || currentUser.role !== 'Admin') {
       router.push('/')
     }
   }, [currentUser, router])
 
-  if (currentUser?.role !== 'Admin') return null
+  if (!currentUser || currentUser.role !== 'Admin') return null
 
   const handleLogout = () => {
     logout()
@@ -47,57 +49,60 @@ export default function AdminPage() {
     <div className="flex min-h-screen bg-background">
       {/* Sidebar - Desktop */}
       <aside className="hidden w-64 flex-col border-r bg-sidebar md:flex">
-        <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-6">
-          <div className="relative h-8 w-8 overflow-hidden rounded-full bg-white p-0.5 shadow-sm">
+        <div className="flex h-20 items-center gap-3 border-b border-sidebar-border px-6">
+          <div className="relative h-10 w-10 overflow-hidden rounded-full bg-white p-1 ring-2 ring-primary/20">
             <Image 
               src={logo?.imageUrl || ''} 
               alt="NEU Logo" 
               fill 
-              className="object-contain"
+              className="object-contain p-0.5"
               data-ai-hint={logo?.imageHint}
             />
           </div>
-          <span className="font-headline text-lg font-bold text-sidebar-foreground tracking-tight">LibreConnect</span>
+          <div className="flex flex-col">
+            <span className="font-headline text-lg font-bold text-sidebar-foreground leading-none">LibreConnect</span>
+            <span className="text-[10px] text-sidebar-foreground/60 font-medium uppercase tracking-widest mt-1">Analytics</span>
+          </div>
         </div>
         
-        <div className="flex-1 space-y-1 p-4">
+        <div className="flex-1 space-y-1 p-4 pt-6">
           <Button 
             variant="ghost" 
-            className={`w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent transition-colors ${activeTab === 'overview' ? 'bg-sidebar-accent' : ''}`}
+            className={`w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200 ${activeTab === 'overview' ? 'bg-sidebar-accent shadow-sm' : ''}`}
             onClick={() => setActiveTab('overview')}
           >
             <LayoutDashboard className="mr-3 h-4 w-4" />
-            Dashboard
+            Overview
           </Button>
           <Button 
             variant="ghost" 
-            className={`w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent transition-colors ${activeTab === 'users' ? 'bg-sidebar-accent' : ''}`}
+            className={`w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200 ${activeTab === 'users' ? 'bg-sidebar-accent shadow-sm' : ''}`}
             onClick={() => setActiveTab('users')}
           >
             <Users className="mr-3 h-4 w-4" />
-            User Management
+            Users
           </Button>
           <Button 
             variant="ghost" 
-            className={`w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent transition-colors ${activeTab === 'trends' ? 'bg-sidebar-accent' : ''}`}
+            className={`w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200 ${activeTab === 'trends' ? 'bg-sidebar-accent shadow-sm' : ''}`}
             onClick={() => setActiveTab('trends')}
           >
-            <Sparkles className="mr-3 h-4 w-4" />
+            <Sparkles className="mr-3 h-4 w-4 text-amber-400" />
             AI Trends
           </Button>
         </div>
 
-        <div className="border-t border-sidebar-border p-4 space-y-2">
-          <div className="flex items-center gap-3 px-2 py-3 rounded-lg bg-sidebar-accent/50">
-            <Avatar className="h-8 w-8 border border-sidebar-border">
-              <AvatarFallback className="bg-primary text-primary-foreground text-xs">AD</AvatarFallback>
+        <div className="p-4 border-t border-sidebar-border bg-black/10">
+          <div className="flex items-center gap-3 mb-4">
+            <Avatar className="h-10 w-10 border-2 border-primary/20">
+              <AvatarFallback className="bg-primary text-primary-foreground">AD</AvatarFallback>
             </Avatar>
             <div className="flex flex-col overflow-hidden">
-              <span className="text-xs font-semibold truncate">{currentUser.name}</span>
-              <span className="text-[10px] opacity-70 truncate">{currentUser.email}</span>
+              <span className="text-sm font-semibold truncate text-sidebar-foreground">{currentUser.name}</span>
+              <span className="text-xs text-sidebar-foreground/50 truncate">Administrator</span>
             </div>
           </div>
-          <Button variant="ghost" className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent h-9" onClick={handleLogout}>
+          <Button variant="ghost" className="w-full justify-start text-sidebar-foreground hover:bg-destructive hover:text-destructive-foreground h-9" onClick={handleLogout}>
             <LogOut className="mr-3 h-4 w-4" />
             Logout
           </Button>
@@ -106,108 +111,106 @@ export default function AdminPage() {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 border-b bg-card flex items-center justify-between px-4 sm:px-8 sticky top-0 z-10 shadow-sm">
+        <header className="h-20 border-b bg-card flex items-center justify-between px-8 sticky top-0 z-10 shadow-sm">
           <div className="flex items-center gap-4 flex-1">
-             <div className="relative max-w-md w-full hidden sm:block">
-                <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search reports..." className="pl-9 bg-muted/30 border-none h-9 text-sm focus-visible:ring-primary/20" />
+             <div className="relative max-w-md w-full hidden lg:block">
+                <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Search records, users, or reports..." className="pl-10 bg-muted/50 border-none h-11 focus-visible:ring-primary/20" />
              </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="text-muted-foreground">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 mr-4 px-3 py-1.5 rounded-full bg-green-500/10 text-green-600 text-[10px] font-bold uppercase tracking-wider">
+              <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse mr-1.5" />
+              Live System
+            </div>
+            <Button variant="outline" size="icon" className="rounded-full h-10 w-10">
               <Bell className="h-5 w-5" />
             </Button>
-            <Button variant="ghost" size="icon" className="text-muted-foreground">
+            <Button variant="outline" size="icon" className="rounded-full h-10 w-10">
               <Settings className="h-5 w-5" />
             </Button>
           </div>
         </header>
 
-        <div className="p-4 sm:p-8 space-y-8 overflow-y-auto">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="p-8 space-y-8 overflow-y-auto">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
             <div>
-              <h1 className="font-headline text-3xl font-bold text-foreground">
-                {activeTab === 'overview' && 'Library Statistics'}
-                {activeTab === 'users' && 'User Management'}
-                {activeTab === 'trends' && 'AI Trend Analysis'}
+              <h1 className="font-headline text-3xl font-bold text-foreground tracking-tight">
+                {activeTab === 'overview' && 'System Overview'}
+                {activeTab === 'users' && 'User Directory'}
+                {activeTab === 'trends' && 'AI Insight Center'}
               </h1>
               <p className="text-muted-foreground mt-1">
-                {activeTab === 'overview' && 'Real-time overview of library facility usage.'}
-                {activeTab === 'users' && 'Manage student access and institutional roles.'}
-                {activeTab === 'trends' && 'Advanced insights generated from historical check-ins.'}
+                {activeTab === 'overview' && 'Centralized dashboard for real-time facility metrics.'}
+                {activeTab === 'users' && 'Directory of all registered university stakeholders.'}
+                {activeTab === 'trends' && 'Advanced behavioral analytics and predictive insights.'}
               </p>
             </div>
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" className="h-9">Export PDF</Button>
-              <Button size="sm" className="h-9 bg-primary">Share Report</Button>
+            <div className="flex gap-3">
+              <Button variant="outline" className="shadow-sm">
+                Generate Report
+              </Button>
+              <Button className="bg-primary shadow-lg shadow-primary/20">
+                Refresh Data
+              </Button>
             </div>
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            {/* Mobile Tab Trigger Bar */}
-            <TabsList className="md:hidden grid grid-cols-3 mb-6 bg-muted/30 p-1">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="users">Users</TabsTrigger>
-              <TabsTrigger value="trends">AI</TabsTrigger>
-            </TabsList>
-
             <TabsContent value="overview" className="space-y-8 mt-0 border-none p-0 outline-none">
               <StatCards visits={visits} />
               
               <div className="grid gap-6 lg:grid-cols-3">
-                <Card className="lg:col-span-2 border-none shadow-sm">
-                   <CardHeader>
-                     <CardTitle className="text-lg">Recent Visits</CardTitle>
-                     <CardDescription>Latest {Math.min(visits.length, 5)} visitor check-ins recorded.</CardDescription>
+                <Card className="lg:col-span-2 border-none shadow-sm ring-1 ring-border">
+                   <CardHeader className="flex flex-row items-center justify-between">
+                     <div>
+                       <CardTitle className="text-xl">Visitor Trends</CardTitle>
+                       <CardDescription>Daily check-in volume over the last 7 days.</CardDescription>
+                     </div>
+                     <Button variant="ghost" size="sm" className="text-primary gap-1">
+                       View Details <ArrowUpRight className="h-3 w-3" />
+                     </Button>
                    </CardHeader>
-                   <CardContent>
-                      <div className="space-y-4">
-                        {visits.slice(0, 5).map((visit) => (
-                          <div key={visit.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/20 border border-transparent hover:border-muted-foreground/10 transition-colors">
-                            <div className="flex flex-col">
-                              <span className="font-medium text-sm">{visit.userName}</span>
-                              <span className="text-xs text-muted-foreground">{visit.department} • {visit.reasonForVisit}</span>
-                            </div>
-                            <span className="text-[10px] font-mono text-muted-foreground">
-                              {new Date(visit.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </span>
-                          </div>
-                        ))}
-                        {visits.length === 0 && (
-                          <p className="text-center py-10 text-muted-foreground text-sm italic">No visits recorded yet.</p>
-                        )}
-                      </div>
+                   <CardContent className="pt-2">
+                      <VisitorChart visits={visits} />
                    </CardContent>
                 </Card>
 
-                <Card className="border-none shadow-sm h-fit">
+                <Card className="border-none shadow-sm ring-1 ring-border h-full">
                    <CardHeader>
-                     <CardTitle className="text-lg">Activity Summary</CardTitle>
+                     <CardTitle className="text-xl">Recent Activity</CardTitle>
+                     <CardDescription>Latest visitor arrivals.</CardDescription>
                    </CardHeader>
-                   <CardContent className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="p-4 rounded-xl bg-primary/5 text-center">
-                          <span className="block text-2xl font-bold text-primary">{visits.length}</span>
-                          <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Total Sessions</span>
-                        </div>
-                        <div className="p-4 rounded-xl bg-accent/5 text-center">
-                          <span className="block text-2xl font-bold text-accent">
-                            {new Set(visits.map(v => v.userEmail)).size}
-                          </span>
-                          <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Unique Users</span>
-                        </div>
-                      </div>
-                      <div className="pt-4 border-t space-y-2">
-                        <p className="text-xs font-semibold text-muted-foreground">TOP REASONS</p>
-                        {Array.from(new Set(visits.map(v => v.reasonForVisit.split(',')[0])))
-                          .slice(0, 3)
-                          .map((r, i) => (
-                          <div key={i} className="flex items-center justify-between text-xs">
-                            <span className="truncate mr-2">{r}</span>
-                            <span className="font-bold">{visits.filter(v => v.reasonForVisit.includes(r)).length}</span>
+                   <CardContent>
+                      <div className="space-y-4">
+                        {visits.slice(0, 6).map((visit) => (
+                          <div key={visit.id} className="flex items-center gap-4 group cursor-default">
+                            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                               <span className="text-xs font-bold text-primary">{visit.userName.charAt(0)}</span>
+                            </div>
+                            <div className="flex-1 overflow-hidden">
+                              <div className="flex items-center justify-between">
+                                <span className="font-semibold text-sm truncate">{visit.userName}</span>
+                                <span className="text-[10px] text-muted-foreground font-medium">
+                                  {new Date(visit.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                              </div>
+                              <p className="text-xs text-muted-foreground truncate">{visit.department}</p>
+                            </div>
                           </div>
                         ))}
+                        {visits.length === 0 && (
+                          <div className="text-center py-12">
+                             <LayoutDashboard className="h-12 w-12 text-muted/30 mx-auto mb-3" />
+                             <p className="text-sm text-muted-foreground">No recent check-ins.</p>
+                          </div>
+                        )}
                       </div>
+                      {visits.length > 6 && (
+                        <Button variant="ghost" className="w-full mt-6 text-xs" onClick={() => setActiveTab('users')}>
+                          View All Activity
+                        </Button>
+                      )}
                    </CardContent>
                 </Card>
               </div>
