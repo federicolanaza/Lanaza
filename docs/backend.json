@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "User": {
@@ -30,15 +31,33 @@
       {
         "path": "/admins/{userId}",
         "definition": {
-          "schema": { "type": "object", "properties": { "uid": { "type": "string" }, "email": { "type": "string" }, "role": { "type": "string" } } },
-          "description": "Verified administrator identifiers."
+          "schema": { 
+            "type": "object", 
+            "properties": { 
+              "uid": { "type": "string" }, 
+              "email": { "type": "string" }, 
+              "role": { "type": "string" },
+              "enrolledAt": { "type": "string" }
+            } 
+          },
+          "description": "Verified administrator identifiers for system access."
         }
       },
       {
         "path": "/active_sessions/{sessionId}",
         "definition": {
-          "schema": { "type": "object", "properties": { "userId": { "type": "string" }, "email": { "type": "string" }, "userName": { "type": "string" }, "role": { "type": "string" }, "loginTime": { "type": "string" }, "lastSeen": { "type": "string" } } },
-          "description": "Real-time user session tracking."
+          "schema": { 
+            "type": "object", 
+            "properties": { 
+              "userId": { "type": "string" }, 
+              "email": { "type": "string" }, 
+              "userName": { "type": "string" }, 
+              "role": { "type": "string" }, 
+              "loginTime": { "type": "string" }, 
+              "lastSeen": { "type": "string" } 
+            } 
+          },
+          "description": "Real-time user session tracking for the admin dashboard."
         }
       }
     ]
