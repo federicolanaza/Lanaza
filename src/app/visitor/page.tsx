@@ -8,11 +8,10 @@ import { PlaceHolderImages } from '@/lib/placeholder-images'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
 import { Toaster } from '@/components/ui/toaster'
-import { LogOut, CheckCircle2, MapPin, Sparkles } from 'lucide-react'
+import { LogOut, CheckCircle2, MapPin, Sparkles, BookOpen } from 'lucide-react'
 
 const DEPARTMENTS = [
   'College of Engineering',
@@ -22,6 +21,16 @@ const DEPARTMENTS = [
   'College of Law',
   'College of Education',
   'Arts and Sciences'
+]
+
+const PURPOSES = [
+  'Research / Thesis Work',
+  'Individual Study / Review',
+  'Group Collaboration',
+  'Book Borrowing / Return',
+  'Internet / Computer Access',
+  'Clearance / Administrative',
+  'Library Orientation'
 ]
 
 export default function VisitorPage() {
@@ -48,7 +57,7 @@ export default function VisitorPage() {
     if (!formData.department || !formData.reasonForVisit) {
       toast({
         title: "Information Required",
-        description: "Please select your department and provide a reason for your visit.",
+        description: "Please select your department and the purpose of your visit.",
         variant: "destructive"
       })
       return
@@ -140,14 +149,20 @@ export default function VisitorPage() {
               </div>
 
               <div className="space-y-3">
-                <Label htmlFor="reason" className="text-sm font-bold text-slate-700">Purpose of Visit</Label>
-                <Textarea
-                  id="reason"
-                  placeholder="e.g., Thesis research, Group consultation, Book borrowing..."
-                  className="min-h-[140px] bg-slate-50 border-slate-200 resize-none p-4 focus:ring-primary/20"
+                <Label htmlFor="purpose" className="text-sm font-bold text-slate-700">Purpose of Visit</Label>
+                <Select 
+                  onValueChange={(v) => setFormData(prev => ({ ...prev, reasonForVisit: v }))}
                   value={formData.reasonForVisit}
-                  onChange={(e) => setFormData(prev => ({ ...prev, reasonForVisit: e.target.value }))}
-                />
+                >
+                  <SelectTrigger className="bg-slate-50 border-slate-200 h-12 focus:ring-primary/20">
+                    <SelectValue placeholder="What is your primary purpose?" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PURPOSES.map(purpose => (
+                      <SelectItem key={purpose} value={purpose}>{purpose}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <Button type="submit" className="w-full bg-primary hover:bg-primary/90 py-7 text-lg font-bold shadow-xl shadow-primary/20 transition-all active:scale-[0.98]" disabled={isSubmitting}>
