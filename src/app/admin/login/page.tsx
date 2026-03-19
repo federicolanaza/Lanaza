@@ -28,7 +28,7 @@ export default function AdminLoginPage() {
     setError(null)
     setIsLoading(true)
 
-    if (!email.endsWith('@neu.edu.ph')) {
+    if (!email.toLowerCase().endsWith('@neu.edu.ph')) {
       setError('Unauthorized access. Admin credentials required.')
       setIsLoading(false)
       return
@@ -51,8 +51,8 @@ export default function AdminLoginPage() {
       </div>
 
       <div className="w-full max-w-lg relative z-10">
-        <Card className="rounded-none border-none shadow-2xl overflow-hidden creative-shadow">
-          <div className="h-2 bg-white/20 w-full" />
+        <Card className="rounded-none border-none shadow-2xl overflow-hidden creative-shadow bg-white">
+          <div className="h-2 bg-black/10 w-full" />
           <CardHeader className="space-y-4 p-12 pb-6">
             <div className="flex items-center justify-between">
               <div className="relative h-12 w-12 p-1 bg-white">
@@ -63,7 +63,7 @@ export default function AdminLoginPage() {
                   className="object-contain"
                 />
               </div>
-              <LockKeyhole className="h-8 w-8 text-primary" />
+              <LockKeyhole className="h-8 w-8 text-black" />
             </div>
             <div className="space-y-2">
               <CardTitle className="text-4xl font-black uppercase italic tracking-tighter text-black">System Portal</CardTitle>
@@ -86,7 +86,7 @@ export default function AdminLoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
                   required
-                  className="h-14 border-x-0 border-t-0 border-b-2 border-primary bg-transparent rounded-none focus-visible:ring-0 focus-visible:border-primary px-0 text-xl font-bold uppercase placeholder:text-gray-300 text-black"
+                  className="h-14 border-x-0 border-t-0 border-b-2 border-black/20 bg-transparent rounded-none focus-visible:ring-0 focus-visible:border-black px-0 text-xl font-bold uppercase placeholder:text-gray-400 text-black"
                 />
                 <Input
                   type="password"
@@ -95,20 +95,20 @@ export default function AdminLoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
                   required
-                  className="h-14 border-x-0 border-t-0 border-b-2 border-primary bg-transparent rounded-none focus-visible:ring-0 focus-visible:border-primary px-0 text-xl font-bold uppercase placeholder:text-gray-300 text-black"
+                  className="h-14 border-x-0 border-t-0 border-b-2 border-black/20 bg-transparent rounded-none focus-visible:ring-0 focus-visible:border-black px-0 text-xl font-bold uppercase placeholder:text-gray-400 text-black"
                 />
               </div>
             </CardContent>
             <CardFooter className="px-12 pb-12 pt-6 flex flex-col gap-6">
-              <Button type="submit" className="w-full h-16 bg-primary hover:bg-black text-white rounded-none text-xl font-black uppercase tracking-tighter" disabled={isLoading}>
+              <Button type="submit" className="w-full h-16 bg-black hover:bg-gray-800 text-white rounded-none text-xl font-black uppercase tracking-tighter transition-colors" disabled={isLoading}>
                 {isLoading ? 'Processing...' : 'Unlock Systems'}
               </Button>
               <div className="flex justify-between w-full">
-                <Link href="/login" className="text-[10px] font-black uppercase tracking-widest text-black flex items-center gap-2 hover:text-primary transition-colors">
+                <Link href="/login" className="text-[10px] font-black uppercase tracking-widest text-black flex items-center gap-2 hover:opacity-70 transition-all">
                   <ArrowLeft className="h-3 w-3" />
                   Return to Visitor Portal
                 </Link>
-                <Link href="/admin/register" className="text-[10px] font-black uppercase tracking-widest text-black flex items-center gap-2 hover:text-primary transition-colors">
+                <Link href="/admin/register" className="text-[10px] font-black uppercase tracking-widest text-black flex items-center gap-2 hover:opacity-70 transition-all">
                   <UserPlus className="h-3 w-3" />
                   Enroll Admin
                 </Link>
