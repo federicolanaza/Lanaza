@@ -5,12 +5,13 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { useUser, useDoc, useFirestore, useAuth, useMemoFirebase } from '@/firebase'
-import { doc } from 'firebase/firestore'
+import { doc, deleteDoc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { PlaceHolderImages } from '@/lib/placeholder-images'
 import { StatCards } from '@/components/admin/StatCards'
 import { UserTable } from '@/components/admin/UserTable'
 import { AiTrends } from '@/components/admin/AiTrends'
 import { VisitorChart } from '@/components/admin/VisitorChart'
+import { ActiveSessions } from '@/components/admin/ActiveSessions'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useToast } from '@/hooks/use-toast'
@@ -25,7 +26,8 @@ import {
   Settings,
   ArrowUpRight,
   Loader2,
-  UserPlus
+  UserPlus,
+  Monitor
 } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Input } from '@/components/ui/input'
@@ -36,15 +38,15 @@ import Link from 'next/link'
 export default function AdminPage() {
   const { user, isUserLoading } = useUser()
   const auth = useAuth()
+  const db = useFirestore()
   const { toast } = useToast()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState('overview')
 
-  // Memoize admin document reference
   const adminDocRef = useMemoFirebase(() => {
     if (!user) return null
-    return doc(useFirestore(), 'admins', user.uid)
-  }, [user])
+    return doc(db, 'admins', user.uid)
+  }, [user, db])
 
   const { data: adminData, isLoading: isAdminDataLoading } = useDoc(adminDocRef)
 
@@ -57,21 +59,25 @@ export default function AdminPage() {
   }, [user, isUserLoading, router])
 
   useEffect(() => {
-    if (!isAdminDataLoading && adminData === null && user) {
-      // User is logged in but not an admin
-      toast({
-        title: "Access Denied",
-        description: "You do not have administrative privileges.",
-        variant: "destructive"
-      })
-      signOut(auth).then(() => router.push('/admin/login'))
-    } else if (adminData && user) {
-      toast({
-        title: "Welcome to NEU Library!",
-        description: "Administrative access granted.",
-      })
+    if (user && adminData) {
+      // Record admin session
+      const sessionRef = doc(db, 'active_sessions', user.uid)
+      setDoc(sessionRef, {
+        userId: user.uid,
+        email: user.email,
+        userName: user.displayName || 'Admin',
+        role: 'Admin',
+        loginTime: new Date().toISOString(),
+        lastSeen: new Date().toISOString()
+      }, { merge: true })
+
+      const interval = setInterval(() => {
+        setDoc(sessionRef, { lastSeen: new Date().toISOString() }, { merge: true })
+      }, 60000)
+
+      return () => clearInterval(interval)
     }
-  }, [adminData, isAdminDataLoading, user, auth, router, toast])
+  }, [user, adminData, db])
 
   if (isUserLoading || isAdminDataLoading) {
     return (
@@ -84,13 +90,14 @@ export default function AdminPage() {
   if (!user || !adminData) return null
 
   const handleLogout = async () => {
+    const sessionRef = doc(db, 'active_sessions', user.uid)
+    await deleteDoc(sessionRef)
     await signOut(auth)
     router.push('/admin/login')
   }
 
   return (
     <div className="flex min-h-screen bg-background">
-      {/* Sidebar - Desktop */}
       <aside className="hidden w-64 flex-col border-r bg-sidebar md:flex">
         <div className="flex h-20 items-center gap-3 border-b border-sidebar-border px-6">
           <div className="relative h-10 w-10 overflow-hidden rounded-full bg-white p-1 ring-2 ring-primary/20">
@@ -151,7 +158,6 @@ export default function AdminPage() {
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0">
         <header className="h-20 border-b bg-card flex items-center justify-between px-8 sticky top-0 z-10 shadow-sm">
           <div className="flex items-center gap-4 flex-1">
@@ -205,20 +211,25 @@ export default function AdminPage() {
             <TabsContent value="overview" className="space-y-8 mt-0 border-none p-0 outline-none">
               <StatCards visits={[]} />
               <div className="grid gap-6 lg:grid-cols-3">
-                <Card className="lg:col-span-2 border-none shadow-sm ring-1 ring-border">
-                   <CardHeader className="flex flex-row items-center justify-between">
-                     <div>
-                       <CardTitle className="text-xl">Visitor Trends</CardTitle>
-                       <CardDescription>Daily check-in volume over the last 7 days.</CardDescription>
-                     </div>
-                     <Button variant="ghost" size="sm" className="text-primary gap-1">
-                       View Details <ArrowUpRight className="h-3 w-3" />
-                     </Button>
-                   </CardHeader>
-                   <CardContent className="pt-2">
-                      <VisitorChart visits={[]} />
-                   </CardContent>
-                </Card>
+                <div className="lg:col-span-2 space-y-6">
+                  <Card className="border-none shadow-sm ring-1 ring-border">
+                     <CardHeader className="flex flex-row items-center justify-between">
+                       <div>
+                         <CardTitle className="text-xl">Visitor Trends</CardTitle>
+                         <CardDescription>Daily check-in volume over the last 7 days.</CardDescription>
+                       </div>
+                       <Button variant="ghost" size="sm" className="text-primary gap-1">
+                         View Details <ArrowUpRight className="h-3 w-3" />
+                       </Button>
+                     </CardHeader>
+                     <CardContent className="pt-2">
+                        <VisitorChart visits={[]} />
+                     </CardContent>
+                  </Card>
+                </div>
+                <div className="lg:col-span-1">
+                  <ActiveSessions />
+                </div>
               </div>
             </TabsContent>
 

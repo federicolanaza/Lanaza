@@ -1,12 +1,14 @@
+
 "use client"
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { useStore } from '@/lib/store'
+import { useFirestore } from '@/firebase'
+import { doc, setDoc, deleteDoc } from 'firebase/firestore'
 import { PlaceHolderImages } from '@/lib/placeholder-images'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
 import { Toaster } from '@/components/ui/toaster'
@@ -34,6 +36,7 @@ const PURPOSES = [
 
 export default function VisitorPage() {
   const { currentUser, addVisit, logout } = useStore()
+  const db = useFirestore()
   const { toast } = useToast()
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -50,12 +53,33 @@ export default function VisitorPage() {
         title: "Welcome to NEU Library!",
         description: `Authenticated as ${currentUser.name}`,
       })
+
+      // Track Visitor Session
+      const sessionRef = doc(db, 'active_sessions', currentUser.id)
+      setDoc(sessionRef, {
+        userId: currentUser.id,
+        email: currentUser.email,
+        userName: currentUser.name,
+        role: 'Visitor',
+        loginTime: new Date().toISOString(),
+        lastSeen: new Date().toISOString()
+      }, { merge: true })
+
+      const interval = setInterval(() => {
+        setDoc(sessionRef, { lastSeen: new Date().toISOString() }, { merge: true })
+      }, 60000)
+
+      return () => {
+        clearInterval(interval)
+      }
     }
-  }, [currentUser, toast])
+  }, [currentUser, db, toast])
 
   if (!currentUser) return null
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const sessionRef = doc(db, 'active_sessions', currentUser.id)
+    await deleteDoc(sessionRef)
     logout()
     router.push('/login')
   }
@@ -85,7 +109,6 @@ export default function VisitorPage() {
 
   return (
     <div className="min-h-screen bg-white text-black">
-      {/* Dynamic Header */}
       <nav className="border-b border-primary/10 py-8">
         <div className="max-w-7xl mx-auto px-8 flex justify-between items-center">
           <div className="flex items-center gap-6">
@@ -106,7 +129,6 @@ export default function VisitorPage() {
       </nav>
 
       <main className="max-w-7xl mx-auto px-8 py-20 flex flex-col lg:flex-row gap-20">
-        {/* Identity Panel */}
         <div className="lg:w-1/3 space-y-12">
           <div className="space-y-4">
             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black block">Verified Identity</span>
@@ -127,7 +149,6 @@ export default function VisitorPage() {
           </div>
         </div>
 
-        {/* Declaration Form */}
         <div className="flex-1 lg:max-w-2xl">
           <form onSubmit={handleSubmit} className="space-y-16">
             <div className="space-y-12">

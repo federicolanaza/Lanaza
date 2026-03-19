@@ -1,3 +1,4 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -16,22 +17,20 @@ service cloud.firestore {
       return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
-    function isNeuEmail() {
-      return isSignedIn() && (
-        request.auth.token.email.matches('.*@neu\\.edu\\.ph$') ||
-        request.auth.token.email.matches('.*@neu\\.edu$') ||
-        request.auth.token.email.matches('.*@northeastern\\.edu$')
-      );
-    }
-
     // --- Collection Rules ---
 
     match /users/{userId} {
       allow get: if isOwner(userId) || isAdmin();
       allow list: if isAdmin();
-      allow create: if isOwner(userId) && isNeuEmail();
-      allow update: if (isOwner(userId) || isAdmin());
+      allow create, update: if isOwner(userId) || isAdmin();
       allow delete: if isAdmin();
+    }
+
+    match /active_sessions/{sessionId} {
+      // Allow users to manage their own sessions (by userId or email)
+      allow read: if isAdmin() || (isSignedIn() && (resource == null || resource.data.userId == request.auth.uid));
+      allow write: if isSignedIn() || (request.resource != null && request.resource.data.email.matches('.*@neu\\.edu\\.ph$'));
+      allow delete: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
     }
 
     match /visits/{visitId} {
@@ -43,9 +42,8 @@ service cloud.firestore {
     }
 
     match /admins/{adminId} {
-      allow get: if isOwner(adminId) || isAdmin();
-      allow list: if isAdmin();
-      allow create: if isOwner(adminId) && isNeuEmail();
+      allow read: if isSignedIn();
+      allow create: if isOwner(adminId);
     }
   }
 }
