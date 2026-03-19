@@ -152,7 +152,7 @@ export default function VisitorPage() {
                 className="object-contain"
               />
             </div>
-            <h1 className="text-3xl font-black uppercase tracking-tighter text-black">VirtuLib</h1>
+            <h1 className="text-3xl font-black uppercase tracking-tighter text-black">VirtuLab</h1>
           </div>
           <Button variant="outline" className="rounded-none border-black font-black uppercase tracking-widest text-[10px] text-black hover:bg-black hover:text-white" onClick={handleLogout}>
             Exit Session
@@ -255,7 +255,7 @@ export default function VisitorPage() {
               </div>
             </div>
 
-            <Button 
+            <button 
               type="submit" 
               className="w-full h-20 bg-primary hover:bg-black text-white rounded-none text-2xl font-black uppercase tracking-tighter group transition-all"
               disabled={isSubmitting}
@@ -266,7 +266,7 @@ export default function VisitorPage() {
                   <ArrowRight className="h-8 w-8 transition-transform group-hover:translate-x-3" />
                 </span>
               )}
-            </Button>
+            </button>
           </form>
         </div>
       </main>

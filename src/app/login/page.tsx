@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from 'react'
@@ -59,7 +60,7 @@ export default function LoginPage() {
               className="object-contain"
             />
           </div>
-          <h1 className="text-6xl font-black leading-tight mb-6 tracking-tighter italic">VIRTU<br />LIB.</h1>
+          <h1 className="text-6xl font-black leading-tight mb-6 tracking-tighter italic">VIRTU<br />LAB.</h1>
           <p className="text-xl text-white font-medium tracking-wide">
             The future of library visitor management at New Era University. Secure, seamless, and data-driven.
           </p>
@@ -78,7 +79,7 @@ export default function LoginPage() {
                 className="object-contain"
               />
             </div>
-            <h1 className="text-3xl font-black uppercase tracking-tighter italic text-black">VirtuLib</h1>
+            <h1 className="text-3xl font-black uppercase tracking-tighter italic text-black">VirtuLab</h1>
           </div>
 
           <div className="space-y-2 mb-10">

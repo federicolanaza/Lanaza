@@ -26,7 +26,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="space-y-4">
-            <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-primary italic uppercase leading-none">Campus Portal</h1>
+            <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-primary italic uppercase leading-none">VirtuLab</h1>
             <p className="text-lg text-slate-500 font-medium max-w-lg mx-auto">
               Welcome to the New Era University Integrated Services. Please select a module to proceed.
             </p>

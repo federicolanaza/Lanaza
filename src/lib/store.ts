@@ -27,7 +27,7 @@ export interface VisitRecord {
   userCategory: UserCategory
 }
 
-interface VirtuLibState {
+interface VirtuLabState {
   currentUser: User | null
   users: User[]
   visits: VisitRecord[]
@@ -41,7 +41,7 @@ const DEFAULT_USERS: User[] = [
   { id: '1', name: 'Admin User', email: 'admin@neu.edu.ph', role: 'Admin', isBlocked: false },
 ]
 
-export const useStore = create<VirtuLibState>()(
+export const useStore = create<VirtuLabState>()(
   persist(
     (set, get) => ({
       currentUser: null,
@@ -87,7 +87,7 @@ export const useStore = create<VirtuLibState>()(
       }))
     }),
     {
-      name: 'virtulib-storage',
+      name: 'virtulab-storage',
     }
   )
 )

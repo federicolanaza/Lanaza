@@ -178,7 +178,7 @@ export default function AdminPage() {
             />
           </div>
           <div className="flex flex-col">
-            <span className="font-headline text-lg font-bold text-sidebar-foreground leading-none">VirtuLib</span>
+            <span className="font-headline text-lg font-bold text-sidebar-foreground leading-none">VirtuLab</span>
             <span className="text-[10px] text-sidebar-foreground/60 font-medium uppercase tracking-widest mt-1">Analytics</span>
           </div>
         </div>

@@ -1,9 +1,10 @@
+
 import type {Metadata} from 'next';
 import './globals.css';
 import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
-  title: 'VirtuLib Analytics',
+  title: 'VirtuLab Analytics',
   description: 'NEU Library Visitor Management and Trend Analysis System',
 };
 
