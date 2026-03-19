@@ -2,7 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { useStore } from '@/lib/store'
+import { PlaceHolderImages } from '@/lib/placeholder-images'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -10,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
 import { Toaster } from '@/components/ui/toaster'
-import { LogOut, CheckCircle2, Library } from 'lucide-react'
+import { LogOut, CheckCircle2 } from 'lucide-react'
 
 const DEPARTMENTS = [
   'College of Engineering',
@@ -31,6 +33,8 @@ export default function VisitorPage() {
     department: '',
     reasonForVisit: ''
   })
+
+  const logo = PlaceHolderImages.find(img => img.id === 'neu-logo')
 
   if (!currentUser) return null
 
@@ -67,8 +71,16 @@ export default function VisitorPage() {
     <div className="min-h-screen bg-background">
       <nav className="border-b bg-card">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-2">
-            <Library className="h-6 w-6 text-primary" />
+          <div className="flex items-center gap-3">
+            <div className="relative h-10 w-10 overflow-hidden rounded-full border border-primary/20 bg-white p-0.5">
+              <Image 
+                src={logo?.imageUrl || ''} 
+                alt="NEU Logo" 
+                fill 
+                className="object-contain"
+                data-ai-hint={logo?.imageHint}
+              />
+            </div>
             <span className="font-headline text-xl font-bold text-primary">LibreConnect</span>
           </div>
           <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-foreground">

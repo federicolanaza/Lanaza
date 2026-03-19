@@ -2,12 +2,14 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { useStore } from '@/lib/store'
+import { PlaceHolderImages } from '@/lib/placeholder-images'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { LogIn, Info } from 'lucide-react'
+import { Info } from 'lucide-react'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -16,12 +18,13 @@ export default function LoginPage() {
   const router = useRouter()
   const { login } = useStore()
 
+  const logo = PlaceHolderImages.find(img => img.id === 'neu-logo')
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
     setIsLoading(true)
 
-    // Simulate Institutional Domain Restriction
     if (!email.endsWith('@neu.edu.ph')) {
       setError('Please use your institutional @neu.edu.ph email address.')
       setIsLoading(false)
@@ -42,8 +45,14 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-md">
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary shadow-lg shadow-primary/20">
-            <LogIn className="h-8 w-8 text-primary-foreground" />
+          <div className="mb-4 relative h-24 w-24 overflow-hidden rounded-full border-4 border-white shadow-xl bg-white p-1">
+            <Image 
+              src={logo?.imageUrl || ''} 
+              alt="NEU Logo" 
+              fill 
+              className="object-contain"
+              data-ai-hint={logo?.imageHint}
+            />
           </div>
           <h1 className="font-headline text-3xl font-bold tracking-tight text-foreground">LibreConnect</h1>
           <p className="mt-2 text-muted-foreground">NEU Library Visitor Analytics</p>

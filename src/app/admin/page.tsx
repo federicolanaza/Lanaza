@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { useStore } from '@/lib/store'
+import { PlaceHolderImages } from '@/lib/placeholder-images'
 import { StatCards } from '@/components/admin/StatCards'
 import { UserTable } from '@/components/admin/UserTable'
 import { AiTrends } from '@/components/admin/AiTrends'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { 
-  Library, 
   LayoutDashboard, 
   Users, 
   Sparkles, 
@@ -18,13 +19,16 @@ import {
   Search as SearchIcon,
   Settings
 } from 'lucide-react'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Input } from '@/components/ui/input'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 
 export default function AdminPage() {
   const { currentUser, logout, visits } = useStore()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState('overview')
+
+  const logo = PlaceHolderImages.find(img => img.id === 'neu-logo')
 
   useEffect(() => {
     if (currentUser?.role !== 'Admin') {
@@ -44,7 +48,15 @@ export default function AdminPage() {
       {/* Sidebar - Desktop */}
       <aside className="hidden w-64 flex-col border-r bg-sidebar md:flex">
         <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-6">
-          <Library className="h-6 w-6 text-sidebar-foreground" />
+          <div className="relative h-8 w-8 overflow-hidden rounded-full bg-white p-0.5 shadow-sm">
+            <Image 
+              src={logo?.imageUrl || ''} 
+              alt="NEU Logo" 
+              fill 
+              className="object-contain"
+              data-ai-hint={logo?.imageHint}
+            />
+          </div>
           <span className="font-headline text-lg font-bold text-sidebar-foreground tracking-tight">LibreConnect</span>
         </div>
         
