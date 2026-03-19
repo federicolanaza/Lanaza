@@ -5,11 +5,17 @@ service cloud.firestore {
     function isSignedIn() {
       return request.auth != null;
     }
+    
+    function isInstitutionalEmail(email) {
+      return email.matches('.*@neu\\.edu\\.ph$');
+    }
 
     // User profiles
     match /users/{userId} {
       allow read: if isSignedIn();
-      allow write: if isSignedIn() && request.auth.uid == userId;
+      allow write: if isSignedIn() 
+                   && request.auth.uid == userId 
+                   && isInstitutionalEmail(request.resource.data.email);
     }
 
     // Admin role verification
@@ -17,7 +23,7 @@ service cloud.firestore {
       allow read, write: if isSignedIn() && request.auth.uid == userId;
     }
 
-    // Real-time session tracking (allows visitors and admins to manage their presence)
+    // Real-time session tracking
     match /active_sessions/{sessionId} {
       allow read: if true;
       allow write, delete: if true;
@@ -25,13 +31,13 @@ service cloud.firestore {
 
     // Library check-in logs
     match /library_logs/{logId} {
-      allow create: if true; // Open check-in
+      allow create: if true;
       allow read, delete: if isSignedIn(); 
     }
 
     // Dean's Office check-in logs
     match /dean_logs/{logId} {
-      allow create: if true; // Open check-in
+      allow create: if true;
       allow read, update, delete: if isSignedIn();
     }
   }

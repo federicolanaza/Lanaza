@@ -5,12 +5,13 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "User",
       "type": "object",
-      "description": "Represents a user account within the application.",
+      "description": "Represents a user account. Must use an institutional @neu.edu.ph email.",
       "properties": {
         "id": { "type": "string" },
-        "email": { "type": "string", "format": "email" },
+        "email": { "type": "string", "format": "email", "description": "Institutional email ending in @neu.edu.ph" },
         "fullName": { "type": "string" },
-        "role": { "type": "string", "enum": ["admin", "visitor"] }
+        "role": { "type": "string", "enum": ["admin", "visitor"] },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "email", "fullName", "role"]
     },
@@ -43,7 +44,7 @@
     }
   },
   "auth": {
-    "providers": ["password", "anonymous"]
+    "providers": ["password"]
   },
   "firestore": {
     "structure": [
@@ -51,7 +52,7 @@
         "path": "/users/{userId}",
         "definition": {
           "schema": { "$ref": "#/backend/entities/User" },
-          "description": "User profiles."
+          "description": "User profiles with institutional domain enforcement."
         }
       },
       {
