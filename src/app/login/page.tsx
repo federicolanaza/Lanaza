@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Label } from '@/components/ui/label'
-import { Settings, ArrowRight } from 'lucide-react'
+import { Settings, ArrowRight, UserPlus } from 'lucide-react'
 import Link from 'next/link'
 
 export default function LoginPage() {
@@ -131,6 +131,13 @@ export default function LoginPage() {
               >
                 <Settings className="h-3 w-3" />
                 Administrator Control Center
+              </Link>
+              <Link 
+                href="/admin/register" 
+                className="text-[10px] font-black uppercase tracking-widest text-primary/40 hover:text-primary transition-colors flex items-center gap-2"
+              >
+                <UserPlus className="h-3 w-3" />
+                Enroll New Administrator
               </Link>
             </div>
           </form>
