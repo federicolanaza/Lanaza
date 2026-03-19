@@ -2,8 +2,8 @@
   "placeholderImages": [
     {
       "id": "neu-logo",
-      "description": "New Era University Logo emblem",
-      "imageUrl": "https://picsum.photos/seed/neu-emblem/400/400",
+      "description": "New Era University Logo official emblem",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/en/c/c6/New_Era_University.svg",
       "imageHint": "university logo"
     }
   ]
