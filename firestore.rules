@@ -2,49 +2,23 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // --- Helper Functions ---
-
     function isSignedIn() {
       return request.auth != null;
     }
 
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
-    }
-
-    function isAdmin() {
-      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
-    }
-
-    // --- Collection Rules ---
-
     match /users/{userId} {
-      allow get: if isOwner(userId) || isAdmin();
-      allow list: if isAdmin();
-      allow create, update: if isOwner(userId) || isAdmin();
-      allow delete: if isAdmin();
-    }
-
-    match /active_sessions/{sessionId} {
-      // Allow users to manage their own sessions (by userId or email)
-      allow read: if isAdmin() || (isSignedIn() && (resource == null || resource.data.userId == request.auth.uid));
-      // Allow unauthenticated writes/deletes if the email domain is valid for visitors
-      allow write: if isSignedIn() || (request.resource != null && request.resource.data.email.matches('.*@neu\\.edu\\.ph$'));
-      allow delete: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid) || (resource != null && resource.data.email.matches('.*@neu\\.edu\\.ph$'));
-    }
-
-    match /visits/{visitId} {
-      allow get: if isAdmin() || (resource != null && isOwner(resource.data.userId));
-      allow list: if isSignedIn(); 
-      allow create: if isSignedIn() || (request.resource != null && request.resource.data.userEmail.matches('.*@neu\\.edu\\.ph$'));
-      allow update: if (isAdmin() || (resource != null && isOwner(resource.data.userId)));
-      allow delete: if isAdmin();
-    }
-
-    match /admins/{adminId} {
       allow read: if isSignedIn();
-      allow create: if isOwner(adminId);
+      allow write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    match /library_logs/{logId} {
+      allow create: if true; // Open check-in
+      allow read, delete: if isSignedIn(); 
+    }
+
+    match /dean_logs/{logId} {
+      allow create: if true; // Open check-in
+      allow read, update, delete: if isSignedIn();
     }
   }
 }
