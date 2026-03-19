@@ -10,15 +10,11 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Label } from '@/components/ui/label'
-import { UserCircle, Settings, Fingerprint, GraduationCap, User, ArrowRight } from 'lucide-react'
+import { Settings, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
 export default function LoginPage() {
-  const [formData, setFormData] = useState({
-    email: '',
-    name: '',
-    studentId: ''
-  })
+  const [email, setEmail] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -31,20 +27,14 @@ export default function LoginPage() {
     setError(null)
     setIsLoading(true)
 
-    if (!formData.email.endsWith('@neu.edu.ph')) {
+    if (!email.toLowerCase().endsWith('@neu.edu.ph')) {
       setError('Please use your institutional @neu.edu.ph email address.')
       setIsLoading(false)
       return
     }
 
-    if (!formData.name || !formData.studentId) {
-      setError('Please provide your full name and student ID number.')
-      setIsLoading(false)
-      return
-    }
-
     try {
-      login(formData.email, formData.name, formData.studentId)
+      login(email.toLowerCase())
       router.push('/')
     } catch (err: any) {
       setError(err.message || 'An error occurred during verification.')
@@ -68,7 +58,6 @@ export default function LoginPage() {
               alt="NEU Logo" 
               fill 
               className="object-contain"
-              data-ai-hint={logo?.imageHint}
             />
           </div>
           <h1 className="text-6xl font-black leading-tight mb-6">VIRTU<br />LIB.</h1>
@@ -107,42 +96,14 @@ export default function LoginPage() {
             
             <div className="grid gap-6">
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-[10px] font-black uppercase tracking-widest text-primary/50">Full Name</Label>
-                <div className="relative">
-                  <Input
-                    id="name"
-                    placeholder="E.G. JUAN DELA CRUZ"
-                    value={formData.name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    className="h-14 border-x-0 border-t-0 border-b-2 border-primary/10 bg-transparent rounded-none focus-visible:ring-0 focus-visible:border-primary px-0 text-lg font-bold uppercase placeholder:text-primary/10"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
                 <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-primary/50">Institutional Email</Label>
                 <div className="relative">
                   <Input
                     id="email"
                     type="email"
                     placeholder="NAME@NEU.EDU.PH"
-                    value={formData.email}
-                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    className="h-14 border-x-0 border-t-0 border-b-2 border-primary/10 bg-transparent rounded-none focus-visible:ring-0 focus-visible:border-primary px-0 text-lg font-bold uppercase placeholder:text-primary/10"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="studentId" className="text-[10px] font-black uppercase tracking-widest text-primary/50">Student ID Number</Label>
-                <div className="relative">
-                  <Input
-                    id="studentId"
-                    placeholder="20XX-XXXX"
-                    value={formData.studentId}
-                    onChange={(e) => setFormData(prev => ({ ...prev, studentId: e.target.value }))}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="h-14 border-x-0 border-t-0 border-b-2 border-primary/10 bg-transparent rounded-none focus-visible:ring-0 focus-visible:border-primary px-0 text-lg font-bold uppercase placeholder:text-primary/10"
                     required
                   />
