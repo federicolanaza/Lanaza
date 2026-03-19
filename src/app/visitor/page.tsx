@@ -7,11 +7,10 @@ import { useStore } from '@/lib/store'
 import { PlaceHolderImages } from '@/lib/placeholder-images'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
 import { Toaster } from '@/components/ui/toaster'
-import { LogOut, CheckCircle2, MapPin, Sparkles } from 'lucide-react'
+import { LogOut, CheckCircle2, MapPin, Sparkles, User, GraduationCap, Fingerprint } from 'lucide-react'
 
 const DEPARTMENTS = [
   'College of Engineering',
@@ -49,10 +48,10 @@ export default function VisitorPage() {
     if (currentUser) {
       toast({
         title: "Welcome to NEU Library!",
-        description: `Logged in as ${currentUser.name}`,
+        description: `Authenticated as ${currentUser.name}`,
       })
     }
-  }, [])
+  }, [currentUser])
 
   if (!currentUser) return null
 
@@ -65,8 +64,8 @@ export default function VisitorPage() {
     e.preventDefault()
     if (!formData.department || !formData.reasonForVisit) {
       toast({
-        title: "Information Required",
-        description: "Please select your department and the purpose of your visit.",
+        title: "Selection Required",
+        description: "Please specify your department and purpose.",
         variant: "destructive"
       })
       return
@@ -76,8 +75,8 @@ export default function VisitorPage() {
     setTimeout(() => {
       addVisit(formData)
       toast({
-        title: "Check-in Complete!",
-        description: "Welcome back to the library. Have a productive session!",
+        title: "Check-in Successful!",
+        description: "Welcome back. Enjoy your library session!",
       })
       setFormData({ department: '', reasonForVisit: '' })
       setIsSubmitting(false)
@@ -120,11 +119,43 @@ export default function VisitorPage() {
         <div className="mb-10 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest mb-4">
              <Sparkles className="h-3 w-3" />
-             Institutional Access
+             Verified Institutional Access
           </div>
           <h1 className="font-headline text-4xl font-black text-slate-900 tracking-tight">Welcome, {currentUser.name.split(' ')[0]}!</h1>
-          <p className="mt-3 text-slate-600 font-medium">Please finalize your check-in to access library resources.</p>
+          <p className="mt-3 text-slate-600 font-medium">Please finalize your check-in declaration.</p>
         </div>
+
+        <Card className="border-none shadow-2xl ring-1 ring-slate-200 mb-8">
+           <CardHeader className="bg-slate-900 text-white rounded-t-lg">
+             <CardTitle className="text-sm font-bold uppercase tracking-widest flex items-center gap-2">
+               <Fingerprint className="h-4 w-4" />
+               Current Identity Info
+             </CardTitle>
+           </CardHeader>
+           <CardContent className="pt-6 space-y-4">
+             <div className="flex items-center justify-between border-b pb-2">
+               <div className="flex items-center gap-2 text-muted-foreground">
+                 <User className="h-4 w-4" />
+                 <span className="text-sm font-medium">Name</span>
+               </div>
+               <span className="font-bold text-sm">{currentUser.name}</span>
+             </div>
+             <div className="flex items-center justify-between border-b pb-2">
+               <div className="flex items-center gap-2 text-muted-foreground">
+                 <GraduationCap className="h-4 w-4" />
+                 <span className="text-sm font-medium">Student ID</span>
+               </div>
+               <span className="font-bold text-sm">{currentUser.studentId}</span>
+             </div>
+             <div className="flex items-center justify-between">
+               <div className="flex items-center gap-2 text-muted-foreground">
+                 <Fingerprint className="h-4 w-4" />
+                 <span className="text-sm font-medium">Institutional Email</span>
+               </div>
+               <span className="font-bold text-sm truncate max-w-[200px]">{currentUser.email}</span>
+             </div>
+           </CardContent>
+        </Card>
 
         <Card className="border-none shadow-2xl ring-1 ring-slate-200">
           <CardHeader className="pb-4">
@@ -134,7 +165,7 @@ export default function VisitorPage() {
               </div>
               <div>
                 <CardTitle className="text-xl">Entry Declaration</CardTitle>
-                <CardDescription className="font-medium">{currentUser.email}</CardDescription>
+                <CardDescription className="font-medium">Declare your visit details below</CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -170,19 +201,19 @@ export default function VisitorPage() {
 
               <Button type="submit" className="w-full bg-primary hover:bg-primary/90 py-7 text-lg font-bold shadow-xl shadow-primary/20 transition-all active:scale-[0.98]" disabled={isSubmitting}>
                 {isSubmitting ? (
-                  'Validating Credentials...'
+                  'Recording Visit...'
                 ) : (
-                  'Confirm Check-in'
+                  'Complete Check-in'
                 )}
               </Button>
             </form>
           </CardContent>
         </Card>
 
-        <footer className="mt-12 text-center">
+        <footer className="mt-12 text-center pb-12">
           <p className="text-xs text-slate-400 font-medium leading-relaxed">
             By checking in, you agree to comply with the <br />
-            <span className="underline cursor-pointer hover:text-primary">Library Code of Conduct</span> and data privacy policies.
+            <span className="underline cursor-pointer hover:text-primary">Library Code of Conduct</span> and institutional data privacy policies.
           </p>
         </footer>
       </main>

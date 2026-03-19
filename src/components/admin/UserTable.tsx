@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Search, UserX, UserCheck, ShieldAlert } from 'lucide-react'
+import { Search, UserX, UserCheck, ShieldAlert, GraduationCap } from 'lucide-react'
 
 export function UserTable() {
   const { users, toggleBlockUser, currentUser } = useStore()
@@ -14,7 +14,8 @@ export function UserTable() {
 
   const filteredUsers = users.filter(user => 
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.studentId?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   return (
@@ -22,7 +23,7 @@ export function UserTable() {
       <div className="flex items-center gap-2 max-w-md bg-card rounded-lg px-3 py-2 border shadow-sm">
         <Search className="h-4 w-4 text-muted-foreground" />
         <Input 
-          placeholder="Search users by name or email..." 
+          placeholder="Search by name, email, or student ID..." 
           className="border-none shadow-none focus-visible:ring-0 h-8"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -34,6 +35,7 @@ export function UserTable() {
           <TableHeader className="bg-muted/50">
             <TableRow>
               <TableHead className="font-semibold">User</TableHead>
+              <TableHead className="font-semibold">Student ID</TableHead>
               <TableHead className="font-semibold">Email</TableHead>
               <TableHead className="font-semibold">Role</TableHead>
               <TableHead className="font-semibold">Status</TableHead>
@@ -45,6 +47,12 @@ export function UserTable() {
               filteredUsers.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.name}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1.5 text-xs font-mono text-muted-foreground">
+                      <GraduationCap className="h-3 w-3" />
+                      {user.studentId || 'N/A'}
+                    </div>
+                  </TableCell>
                   <TableCell className="text-muted-foreground">{user.email}</TableCell>
                   <TableCell>
                     <Badge variant={user.role === 'Admin' ? 'default' : 'secondary'} className="rounded-md font-normal">
@@ -91,7 +99,7 @@ export function UserTable() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                   No users found matching your search.
                 </TableCell>
               </TableRow>

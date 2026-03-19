@@ -9,6 +9,7 @@ export interface User {
   id: string
   name: string
   email: string
+  studentId?: string
   role: UserRole
   isBlocked: boolean
 }
@@ -18,6 +19,7 @@ export interface VisitRecord {
   timestamp: string
   userEmail: string
   userName: string
+  studentId?: string
   department: string
   reasonForVisit: string
 }
@@ -26,16 +28,15 @@ interface LibreState {
   currentUser: User | null
   users: User[]
   visits: VisitRecord[]
-  login: (email: string) => void
+  login: (email: string, name?: string, studentId?: string) => void
   logout: () => void
-  addVisit: (visit: Omit<VisitRecord, 'id' | 'timestamp' | 'userEmail' | 'userName'>) => void
+  addVisit: (visit: Omit<VisitRecord, 'id' | 'timestamp' | 'userEmail' | 'userName' | 'studentId'>) => void
   toggleBlockUser: (userId: string) => void
 }
 
 const DEFAULT_USERS: User[] = [
   { id: '1', name: 'Admin User', email: 'admin@neu.edu.ph', role: 'Admin', isBlocked: false },
-  { id: '2', name: 'John Doe', email: 'j.doe@neu.edu.ph', role: 'Visitor', isBlocked: false },
-  { id: '3', name: 'Jane Smith', email: 'j.smith@neu.edu.ph', role: 'Visitor', isBlocked: false },
+  { id: '2', name: 'John Doe', email: 'j.doe@neu.edu.ph', studentId: '2023-0001', role: 'Visitor', isBlocked: false },
 ]
 
 export const useStore = create<LibreState>()(
@@ -44,7 +45,7 @@ export const useStore = create<LibreState>()(
       currentUser: null,
       users: DEFAULT_USERS,
       visits: [],
-      login: (email: string) => {
+      login: (email: string, name?: string, studentId?: string) => {
         const user = get().users.find(u => u.email === email)
         if (user) {
           if (user.isBlocked) {
@@ -52,11 +53,12 @@ export const useStore = create<LibreState>()(
           }
           set({ currentUser: user })
         } else {
-          // If user doesn't exist, create a new visitor
+          // If user doesn't exist, create a new visitor with the provided info
           const newUser: User = {
             id: Math.random().toString(36).substr(2, 9),
-            name: email.split('@')[0].split('.').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' '),
+            name: name || email.split('@')[0],
             email,
+            studentId: studentId || 'N/A',
             role: 'Visitor',
             isBlocked: false
           }
@@ -74,7 +76,8 @@ export const useStore = create<LibreState>()(
           id: Math.random().toString(36).substr(2, 9),
           timestamp: new Date().toISOString(),
           userEmail: state.currentUser.email,
-          userName: state.currentUser.name
+          userName: state.currentUser.name,
+          studentId: state.currentUser.studentId
         }
         return { visits: [newVisit, ...state.visits] }
       }),
