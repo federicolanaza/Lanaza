@@ -132,7 +132,7 @@ export default function VisitorPage() {
         <div className="lg:w-1/3 space-y-12">
           <div className="space-y-4">
             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black block">System Identity</span>
-            <h2 className="text-6xl font-black italic uppercase leading-[0.9] tracking-tighter text-black">
+            <h2 className="text-3xl font-black italic uppercase leading-tight tracking-tighter text-black break-words">
               {currentUser.name}
             </h2>
           </div>
