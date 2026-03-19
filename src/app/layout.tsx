@@ -2,7 +2,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'LibreConnect Analytics',
+  title: 'VirtuLib Analytics',
   description: 'NEU Library Visitor Management and Trend Analysis System',
 };
 

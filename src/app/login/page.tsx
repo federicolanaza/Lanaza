@@ -71,7 +71,7 @@ export default function LoginPage() {
               data-ai-hint={logo?.imageHint}
             />
           </div>
-          <h1 className="text-6xl font-black leading-tight mb-6">LIBRE<br />CONNECT.</h1>
+          <h1 className="text-6xl font-black leading-tight mb-6">VIRTU<br />LIB.</h1>
           <p className="text-xl text-white/70 font-medium tracking-wide">
             The future of library visitor management at New Era University. Secure, seamless, and data-driven.
           </p>
@@ -90,7 +90,7 @@ export default function LoginPage() {
                 className="object-contain"
               />
             </div>
-            <h1 className="text-3xl font-black uppercase tracking-tighter">LibreConnect</h1>
+            <h1 className="text-3xl font-black uppercase tracking-tighter">VirtuLib</h1>
           </div>
 
           <div className="space-y-2 mb-10">

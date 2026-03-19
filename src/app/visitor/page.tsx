@@ -97,7 +97,7 @@ export default function VisitorPage() {
                 className="object-contain"
               />
             </div>
-            <h1 className="text-3xl font-black uppercase tracking-tighter">LibreConnect</h1>
+            <h1 className="text-3xl font-black uppercase tracking-tighter">VirtuLib</h1>
           </div>
           <Button variant="outline" className="rounded-none border-primary font-black uppercase tracking-widest text-[10px]" onClick={handleLogout}>
             Exit Session
