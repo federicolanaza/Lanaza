@@ -28,5 +28,17 @@ service cloud.firestore {
       allow read: if true;
       allow write, delete: if true;
     }
+
+    // Visitor Logs (Library)
+    match /library_logs/{logId} {
+      allow create: if true;
+      allow read: if isSignedIn();
+    }
+
+    // Visitor Logs (Dean's Office)
+    match /dean_logs/{logId} {
+      allow create: if true;
+      allow read: if isSignedIn();
+    }
   }
 }

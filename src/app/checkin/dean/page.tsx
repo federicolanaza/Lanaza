@@ -1,9 +1,12 @@
+
 "use client"
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useFirestore } from '@/firebase'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import { errorEmitter } from '@/firebase/error-emitter'
+import { FirestorePermissionError } from '@/firebase/errors'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -32,17 +35,24 @@ export default function DeanCheckin() {
     e.preventDefault()
     setIsLoading(true)
 
-    try {
-      await addDoc(collection(db, 'dean_logs'), {
-        ...formData,
-        status: 'Waiting',
-        timestamp: serverTimestamp()
-      })
-      router.push('/checkin/success')
-    } catch (error) {
-      console.error(error)
-      setIsLoading(false)
+    const logData = {
+      ...formData,
+      status: 'Waiting',
+      timestamp: serverTimestamp()
     }
+
+    addDoc(collection(db, 'dean_logs'), logData)
+      .then(() => {
+        router.push('/checkin/success')
+      })
+      .catch(async (err) => {
+        errorEmitter.emit('permission-error', new FirestorePermissionError({
+          path: 'dean_logs',
+          operation: 'create',
+          requestResourceData: logData
+        }))
+        setIsLoading(false)
+      })
   }
 
   return (
