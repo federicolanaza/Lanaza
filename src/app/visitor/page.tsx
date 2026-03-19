@@ -107,12 +107,6 @@ export default function VisitorPage() {
     }, 800)
   }
 
-  // Format the name for display (handle email prefixes with dots/underscores)
-  const formattedName = currentUser.name.replace(/[._]/g, ' ')
-  const nameParts = formattedName.split(' ')
-  const firstName = nameParts[0]
-  const lastName = nameParts.slice(1).join(' ')
-
   return (
     <div className="min-h-screen bg-white text-black">
       <nav className="border-b border-primary/10 py-8">
@@ -139,7 +133,7 @@ export default function VisitorPage() {
           <div className="space-y-4">
             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black block">System Identity</span>
             <h2 className="text-6xl font-black italic uppercase leading-[0.9] tracking-tighter text-black">
-              {firstName}<br />{lastName || ''}
+              {currentUser.name}
             </h2>
           </div>
 
