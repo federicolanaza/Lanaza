@@ -66,8 +66,8 @@ export default function AdminLoginPage() {
               <LockKeyhole className="h-8 w-8 text-primary" />
             </div>
             <div className="space-y-2">
-              <CardTitle className="text-4xl font-black uppercase italic tracking-tighter">System Portal</CardTitle>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Administrator Gateway</p>
+              <CardTitle className="text-4xl font-black uppercase italic tracking-tighter text-black">System Portal</CardTitle>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-black">Administrator Gateway</p>
             </div>
           </CardHeader>
 
@@ -75,7 +75,7 @@ export default function AdminLoginPage() {
             <CardContent className="px-12 py-6 space-y-6">
               {error && (
                 <Alert variant="destructive" className="mb-8 rounded-none border-2 border-destructive bg-transparent">
-                  <AlertDescription className="font-bold uppercase text-xs">{error}</AlertDescription>
+                  <AlertDescription className="font-bold uppercase text-xs text-destructive">{error}</AlertDescription>
                 </Alert>
               )}
               <div className="space-y-6">
@@ -86,7 +86,7 @@ export default function AdminLoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
                   required
-                  className="h-14 border-x-0 border-t-0 border-b-2 border-primary/10 bg-transparent rounded-none focus-visible:ring-0 focus-visible:border-primary px-0 text-xl font-bold uppercase placeholder:text-primary/5"
+                  className="h-14 border-x-0 border-t-0 border-b-2 border-primary bg-transparent rounded-none focus-visible:ring-0 focus-visible:border-primary px-0 text-xl font-bold uppercase placeholder:text-gray-300 text-black"
                 />
                 <Input
                   type="password"
@@ -95,7 +95,7 @@ export default function AdminLoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
                   required
-                  className="h-14 border-x-0 border-t-0 border-b-2 border-primary/10 bg-transparent rounded-none focus-visible:ring-0 focus-visible:border-primary px-0 text-xl font-bold uppercase placeholder:text-primary/5"
+                  className="h-14 border-x-0 border-t-0 border-b-2 border-primary bg-transparent rounded-none focus-visible:ring-0 focus-visible:border-primary px-0 text-xl font-bold uppercase placeholder:text-gray-300 text-black"
                 />
               </div>
             </CardContent>
@@ -104,11 +104,11 @@ export default function AdminLoginPage() {
                 {isLoading ? 'Processing...' : 'Unlock Systems'}
               </Button>
               <div className="flex justify-between w-full">
-                <Link href="/login" className="text-[10px] font-black uppercase tracking-widest text-primary/40 flex items-center gap-2 hover:text-primary transition-colors">
+                <Link href="/login" className="text-[10px] font-black uppercase tracking-widest text-black flex items-center gap-2 hover:text-primary transition-colors">
                   <ArrowLeft className="h-3 w-3" />
                   Return to Visitor Portal
                 </Link>
-                <Link href="/admin/register" className="text-[10px] font-black uppercase tracking-widest text-primary/40 flex items-center gap-2 hover:text-primary transition-colors">
+                <Link href="/admin/register" className="text-[10px] font-black uppercase tracking-widest text-black flex items-center gap-2 hover:text-primary transition-colors">
                   <UserPlus className="h-3 w-3" />
                   Enroll Admin
                 </Link>

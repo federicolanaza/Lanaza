@@ -51,7 +51,7 @@ export default function VisitorPage() {
         description: `Authenticated as ${currentUser.name}`,
       })
     }
-  }, [currentUser])
+  }, [currentUser, toast])
 
   if (!currentUser) return null
 
@@ -84,12 +84,12 @@ export default function VisitorPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-primary">
+    <div className="min-h-screen bg-white text-black">
       {/* Dynamic Header */}
-      <nav className="border-b border-primary/5 py-8">
+      <nav className="border-b border-primary/10 py-8">
         <div className="max-w-7xl mx-auto px-8 flex justify-between items-center">
           <div className="flex items-center gap-6">
-            <div className="relative h-12 w-12 grayscale hover:grayscale-0 transition-all">
+            <div className="relative h-12 w-12">
                <Image 
                 src={logo?.imageUrl || ''} 
                 alt="NEU Logo" 
@@ -97,9 +97,9 @@ export default function VisitorPage() {
                 className="object-contain"
               />
             </div>
-            <h1 className="text-3xl font-black uppercase tracking-tighter">VirtuLib</h1>
+            <h1 className="text-3xl font-black uppercase tracking-tighter text-black">VirtuLib</h1>
           </div>
-          <Button variant="outline" className="rounded-none border-primary font-black uppercase tracking-widest text-[10px]" onClick={handleLogout}>
+          <Button variant="outline" className="rounded-none border-black font-black uppercase tracking-widest text-[10px] text-black hover:bg-black hover:text-white" onClick={handleLogout}>
             Exit Session
           </Button>
         </div>
@@ -109,20 +109,20 @@ export default function VisitorPage() {
         {/* Identity Panel */}
         <div className="lg:w-1/3 space-y-12">
           <div className="space-y-4">
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground block">Verified Identity</span>
-            <h2 className="text-6xl font-black italic uppercase leading-[0.9] tracking-tighter">
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black block">Verified Identity</span>
+            <h2 className="text-6xl font-black italic uppercase leading-[0.9] tracking-tighter text-black">
               {currentUser.name.split(' ')[0]}<br />{currentUser.name.split(' ')[1] || ''}
             </h2>
           </div>
 
           <div className="space-y-6 pt-8 border-t border-primary/10">
             <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Student ID</span>
-              <span className="text-2xl font-black">{currentUser.studentId}</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-black">Student ID</span>
+              <span className="text-2xl font-black text-black">{currentUser.studentId}</span>
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Email Address</span>
-              <span className="text-lg font-bold opacity-60 truncate">{currentUser.email}</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-black">Email Address</span>
+              <span className="text-lg font-bold text-black truncate">{currentUser.email}</span>
             </div>
           </div>
         </div>
@@ -132,7 +132,7 @@ export default function VisitorPage() {
           <form onSubmit={handleSubmit} className="space-y-16">
             <div className="space-y-12">
                <div className="space-y-6">
-                <Label className="text-2xl font-black uppercase italic tracking-tighter flex items-center gap-3">
+                <Label className="text-2xl font-black uppercase italic tracking-tighter flex items-center gap-3 text-black">
                   <span className="h-8 w-8 bg-primary text-white flex items-center justify-center not-italic text-sm">01</span>
                   Select Department
                 </Label>
@@ -144,8 +144,8 @@ export default function VisitorPage() {
                       onClick={() => setFormData(prev => ({ ...prev, department: dept }))}
                       className={`h-14 px-6 text-left text-sm font-bold uppercase tracking-tight border-2 transition-all ${
                         formData.department === dept 
-                        ? 'bg-primary text-white border-primary' 
-                        : 'bg-transparent text-primary border-primary/10 hover:border-primary'
+                        ? 'bg-black text-white border-black' 
+                        : 'bg-transparent text-black border-black/10 hover:border-black'
                       }`}
                     >
                       {dept}
@@ -155,7 +155,7 @@ export default function VisitorPage() {
               </div>
 
               <div className="space-y-6">
-                <Label className="text-2xl font-black uppercase italic tracking-tighter flex items-center gap-3">
+                <Label className="text-2xl font-black uppercase italic tracking-tighter flex items-center gap-3 text-black">
                   <span className="h-8 w-8 bg-primary text-white flex items-center justify-center not-italic text-sm">02</span>
                   Purpose of Visit
                 </Label>
@@ -167,8 +167,8 @@ export default function VisitorPage() {
                       onClick={() => setFormData(prev => ({ ...prev, reasonForVisit: purpose }))}
                       className={`h-14 px-6 text-left text-sm font-bold uppercase tracking-tight border-2 transition-all ${
                         formData.reasonForVisit === purpose 
-                        ? 'bg-primary text-white border-primary' 
-                        : 'bg-transparent text-primary border-primary/10 hover:border-primary'
+                        ? 'bg-black text-white border-black' 
+                        : 'bg-transparent text-black border-black/10 hover:border-black'
                       }`}
                     >
                       {purpose}
@@ -194,8 +194,8 @@ export default function VisitorPage() {
         </div>
       </main>
 
-      <footer className="mt-20 py-12 border-t border-primary/5 text-center">
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground">
+      <footer className="mt-20 py-12 border-t border-primary/10 text-center">
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-black">
           New Era University • Library Services Management
         </p>
       </footer>
