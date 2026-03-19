@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react'
@@ -34,7 +35,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!currentUser || currentUser.role !== 'Admin') {
-      router.push('/')
+      router.push('/admin/login')
     }
   }, [currentUser, router])
 
@@ -42,7 +43,7 @@ export default function AdminPage() {
 
   const handleLogout = () => {
     logout()
-    router.push('/login')
+    router.push('/admin/login')
   }
 
   return (
