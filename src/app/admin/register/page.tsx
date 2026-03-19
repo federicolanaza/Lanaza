@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from 'react'
@@ -33,17 +34,19 @@ export default function AdminRegisterPage() {
     setError(null)
     setIsLoading(true)
 
-    if (!email.endsWith('@neu.edu.ph')) {
+    // Strict validation for institutional email
+    if (!email.toLowerCase().endsWith('@neu.edu.ph')) {
       setError('Only @neu.edu.ph institutional emails are permitted for admin registration.')
       setIsLoading(false)
       return
     }
 
     try {
+      // 1. Create the user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password)
       const user = userCredential.user
 
-      // Create user profile in Firestore
+      // 2. Initialize the user profile in Firestore
       const userRef = doc(db, 'users', user.uid)
       const userData = {
         id: user.uid,
@@ -55,15 +58,16 @@ export default function AdminRegisterPage() {
         updatedAt: serverTimestamp(),
       }
 
+      // Use setDoc for initial profile creation
       await setDoc(userRef, userData)
 
-      // Create admin marker in Firestore to satisfy security rules exists() check
+      // 3. Create an admin marker in the 'admins' collection
+      // This collection is used by Security Rules for robust permission checks via exists()
       const adminRef = doc(db, 'admins', user.uid)
       await setDoc(adminRef, { uid: user.uid })
 
       router.push('/admin')
     } catch (err: any) {
-      console.error(err)
       setError(err.message || 'An error occurred during registration.')
     } finally {
       setIsLoading(false)
@@ -72,6 +76,7 @@ export default function AdminRegisterPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-primary p-4 overflow-hidden relative">
+      {/* Background Decorative Element */}
       <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
         <span className="text-[20vw] font-black text-white/5 uppercase select-none leading-none">ROOT</span>
       </div>
@@ -115,7 +120,7 @@ export default function AdminRegisterPage() {
                 />
                 <Input
                   type="email"
-                  placeholder="INSTITUTIONAL EMAIL"
+                  placeholder="INSTITUTIONAL EMAIL (@NEU.EDU.PH)"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
@@ -140,7 +145,7 @@ export default function AdminRegisterPage() {
               <div className="flex justify-between w-full">
                 <Link href="/admin/login" className="text-[10px] font-black uppercase tracking-widest text-primary/40 flex items-center gap-2 hover:text-primary transition-colors">
                   <ArrowLeft className="h-3 w-3" />
-                  Existing Admin?
+                  Existing Admin? Return to Login
                 </Link>
               </div>
             </CardFooter>

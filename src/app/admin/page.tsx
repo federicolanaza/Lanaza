@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react'
@@ -23,12 +24,14 @@ import {
   Search as SearchIcon,
   Settings,
   ArrowUpRight,
-  Loader2
+  Loader2,
+  UserPlus
 } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { signOut } from 'firebase/auth'
+import Link from 'next/link'
 
 export default function AdminPage() {
   const { user, isUserLoading } = useUser()
@@ -186,9 +189,12 @@ export default function AdminPage() {
               </p>
             </div>
             <div className="flex gap-3">
-              <Button variant="outline" className="shadow-sm">
-                Generate Report
-              </Button>
+              <Link href="/admin/register">
+                <Button variant="outline" className="shadow-sm gap-2">
+                  <UserPlus className="h-4 w-4" />
+                  Enroll Admin
+                </Button>
+              </Link>
               <Button className="bg-primary shadow-lg shadow-primary/20">
                 Refresh Data
               </Button>
