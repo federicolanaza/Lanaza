@@ -6,16 +6,30 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    // User profiles
     match /users/{userId} {
       allow read: if isSignedIn();
       allow write: if isSignedIn() && request.auth.uid == userId;
     }
 
+    // Admin role verification
+    match /admins/{userId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Real-time session tracking (allows visitors and admins to manage their presence)
+    match /active_sessions/{sessionId} {
+      allow read: if true;
+      allow write, delete: if true;
+    }
+
+    // Library check-in logs
     match /library_logs/{logId} {
       allow create: if true; // Open check-in
       allow read, delete: if isSignedIn(); 
     }
 
+    // Dean's Office check-in logs
     match /dean_logs/{logId} {
       allow create: if true; // Open check-in
       allow read, update, delete: if isSignedIn();
