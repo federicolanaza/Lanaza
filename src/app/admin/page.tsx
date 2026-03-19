@@ -5,7 +5,9 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { useUser, useDoc, useFirestore, useAuth, useMemoFirebase } from '@/firebase'
-import { doc, deleteDoc, setDoc, serverTimestamp } from 'firebase/firestore'
+import { doc, deleteDoc, setDoc } from 'firebase/firestore'
+import { errorEmitter } from '@/firebase/error-emitter'
+import { FirestorePermissionError } from '@/firebase/errors'
 import { PlaceHolderImages } from '@/lib/placeholder-images'
 import { StatCards } from '@/components/admin/StatCards'
 import { UserTable } from '@/components/admin/UserTable'
@@ -26,8 +28,7 @@ import {
   Settings,
   ArrowUpRight,
   Loader2,
-  UserPlus,
-  Monitor
+  UserPlus
 } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Input } from '@/components/ui/input'
@@ -60,19 +61,33 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (user && adminData) {
-      // Record admin session
       const sessionRef = doc(db, 'active_sessions', user.uid)
-      setDoc(sessionRef, {
+      const sessionData = {
         userId: user.uid,
         email: user.email,
         userName: user.displayName || 'Admin',
         role: 'Admin',
         loginTime: new Date().toISOString(),
         lastSeen: new Date().toISOString()
-      }, { merge: true })
+      }
+
+      setDoc(sessionRef, sessionData, { merge: true }).catch(async (err) => {
+        errorEmitter.emit('permission-error', new FirestorePermissionError({
+          path: sessionRef.path,
+          operation: 'write',
+          requestResourceData: sessionData
+        }))
+      })
 
       const interval = setInterval(() => {
-        setDoc(sessionRef, { lastSeen: new Date().toISOString() }, { merge: true })
+        const updateData = { lastSeen: new Date().toISOString() }
+        setDoc(sessionRef, updateData, { merge: true }).catch(async (err) => {
+          errorEmitter.emit('permission-error', new FirestorePermissionError({
+            path: sessionRef.path,
+            operation: 'update',
+            requestResourceData: updateData
+          }))
+        })
       }, 60000)
 
       return () => clearInterval(interval)
@@ -91,7 +106,12 @@ export default function AdminPage() {
 
   const handleLogout = async () => {
     const sessionRef = doc(db, 'active_sessions', user.uid)
-    await deleteDoc(sessionRef)
+    deleteDoc(sessionRef).catch(async (err) => {
+      errorEmitter.emit('permission-error', new FirestorePermissionError({
+        path: sessionRef.path,
+        operation: 'delete'
+      }))
+    })
     await signOut(auth)
     router.push('/admin/login')
   }

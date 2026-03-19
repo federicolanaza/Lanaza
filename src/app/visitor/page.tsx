@@ -7,6 +7,8 @@ import Image from 'next/image'
 import { useStore } from '@/lib/store'
 import { useFirestore } from '@/firebase'
 import { doc, setDoc, deleteDoc } from 'firebase/firestore'
+import { errorEmitter } from '@/firebase/error-emitter'
+import { FirestorePermissionError } from '@/firebase/errors'
 import { PlaceHolderImages } from '@/lib/placeholder-images'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -54,19 +56,33 @@ export default function VisitorPage() {
         description: `Authenticated as ${currentUser.email}`,
       })
 
-      // Track Visitor Session
       const sessionRef = doc(db, 'active_sessions', currentUser.id)
-      setDoc(sessionRef, {
+      const sessionData = {
         userId: currentUser.id,
         email: currentUser.email,
         userName: currentUser.name,
         role: 'Visitor',
         loginTime: new Date().toISOString(),
         lastSeen: new Date().toISOString()
-      }, { merge: true })
+      }
+
+      setDoc(sessionRef, sessionData, { merge: true }).catch(async (err) => {
+        errorEmitter.emit('permission-error', new FirestorePermissionError({
+          path: sessionRef.path,
+          operation: 'write',
+          requestResourceData: sessionData
+        }))
+      })
 
       const interval = setInterval(() => {
-        setDoc(sessionRef, { lastSeen: new Date().toISOString() }, { merge: true })
+        const updateData = { lastSeen: new Date().toISOString() }
+        setDoc(sessionRef, updateData, { merge: true }).catch(async (err) => {
+          errorEmitter.emit('permission-error', new FirestorePermissionError({
+            path: sessionRef.path,
+            operation: 'update',
+            requestResourceData: updateData
+          }))
+        })
       }, 60000)
 
       return () => {
@@ -79,7 +95,12 @@ export default function VisitorPage() {
 
   const handleLogout = async () => {
     const sessionRef = doc(db, 'active_sessions', currentUser.id)
-    await deleteDoc(sessionRef)
+    deleteDoc(sessionRef).catch(async (err) => {
+      errorEmitter.emit('permission-error', new FirestorePermissionError({
+        path: sessionRef.path,
+        operation: 'delete'
+      }))
+    })
     logout()
     router.push('/login')
   }

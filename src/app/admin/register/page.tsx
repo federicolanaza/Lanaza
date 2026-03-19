@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from 'react'
@@ -6,6 +7,8 @@ import Image from 'next/image'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { useAuth, useFirestore } from '@/firebase'
+import { errorEmitter } from '@/firebase/error-emitter'
+import { FirestorePermissionError } from '@/firebase/errors'
 import { PlaceHolderImages } from '@/lib/placeholder-images'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -48,14 +51,31 @@ export default function AdminRegisterPage() {
         fullName: fullName,
         role: 'admin',
         isBlocked: false,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       }
 
-      await setDoc(userRef, userData)
+      // We don't await these mutations to allow local cache to update instantly, 
+      // but we catch errors to surface security rule issues.
+      setDoc(userRef, userData).catch(async (err) => {
+        const permissionError = new FirestorePermissionError({
+          path: userRef.path,
+          operation: 'create',
+          requestResourceData: userData
+        })
+        errorEmitter.emit('permission-error', permissionError)
+      })
 
       const adminRef = doc(db, 'admins', user.uid)
-      await setDoc(adminRef, { uid: user.uid })
+      const adminData = { uid: user.uid }
+      setDoc(adminRef, adminData).catch(async (err) => {
+        const permissionError = new FirestorePermissionError({
+          path: adminRef.path,
+          operation: 'create',
+          requestResourceData: adminData
+        })
+        errorEmitter.emit('permission-error', permissionError)
+      })
 
       router.push('/admin')
     } catch (err: any) {
