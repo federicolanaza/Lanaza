@@ -1,46 +1,18 @@
-
 {
   "entities": {
     "User": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "User",
       "type": "object",
-      "description": "Represents a user account. Must use an institutional @neu.edu.ph email.",
+      "description": "Represents a user account in the system.",
       "properties": {
         "id": { "type": "string" },
-        "email": { "type": "string", "format": "email", "description": "Institutional email ending in @neu.edu.ph" },
+        "email": { "type": "string", "format": "email" },
         "fullName": { "type": "string" },
         "role": { "type": "string", "enum": ["admin", "visitor"] },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "email", "fullName", "role"]
-    },
-    "LibraryLog": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "LibraryLog",
-      "type": "object",
-      "description": "Records a library check-in event.",
-      "properties": {
-        "idNumber": { "type": "string" },
-        "department": { "type": "string" },
-        "studyDuration": { "type": "string" },
-        "timestamp": { "type": "string", "format": "date-time" }
-      },
-      "required": ["idNumber", "department", "studyDuration", "timestamp"]
-    },
-    "DeanLog": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "DeanLog",
-      "type": "object",
-      "description": "Records a Dean's Office check-in event.",
-      "properties": {
-        "visitorName": { "type": "string" },
-        "studentId": { "type": "string" },
-        "purpose": { "type": "string", "enum": ["Signature", "Consultation", "Document Submission"] },
-        "status": { "type": "string", "default": "Waiting" },
-        "timestamp": { "type": "string", "format": "date-time" }
-      },
-      "required": ["visitorName", "studentId", "purpose", "status", "timestamp"]
     }
   },
   "auth": {
@@ -52,21 +24,21 @@
         "path": "/users/{userId}",
         "definition": {
           "schema": { "$ref": "#/backend/entities/User" },
-          "description": "User profiles with institutional domain enforcement."
+          "description": "User profiles and account settings."
         }
       },
       {
-        "path": "/library_logs/{logId}",
+        "path": "/admins/{userId}",
         "definition": {
-          "schema": { "$ref": "#/backend/entities/LibraryLog" },
-          "description": "Library check-in logs."
+          "schema": { "type": "object", "properties": { "uid": { "type": "string" }, "email": { "type": "string" }, "role": { "type": "string" } } },
+          "description": "Verified administrator identifiers."
         }
       },
       {
-        "path": "/dean_logs/{logId}",
+        "path": "/active_sessions/{sessionId}",
         "definition": {
-          "schema": { "$ref": "#/backend/entities/DeanLog" },
-          "description": "Dean's Office check-in logs."
+          "schema": { "type": "object", "properties": { "userId": { "type": "string" }, "email": { "type": "string" }, "userName": { "type": "string" }, "role": { "type": "string" }, "loginTime": { "type": "string" }, "lastSeen": { "type": "string" } } },
+          "description": "Real-time user session tracking."
         }
       }
     ]
