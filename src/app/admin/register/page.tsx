@@ -3,8 +3,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { signInWithEmailAndPassword } from 'firebase/auth'
-import { useAuth } from '@/firebase'
+import { createUserWithEmailAndPassword } from 'firebase/auth'
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
+import { useAuth, useFirestore } from '@/firebase'
 import { PlaceHolderImages } from '@/lib/placeholder-images'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,33 +13,58 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { LockKeyhole, ArrowLeft, UserPlus } from 'lucide-react'
 import Link from 'next/link'
+import { errorEmitter } from '@/firebase/error-emitter'
+import { FirestorePermissionError } from '@/firebase/errors'
 
-export default function AdminLoginPage() {
+export default function AdminRegisterPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [fullName, setFullName] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const auth = useAuth()
+  const db = useFirestore()
 
   const logo = PlaceHolderImages.find(img => img.id === 'neu-logo')
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
     setIsLoading(true)
 
     if (!email.endsWith('@neu.edu.ph')) {
-      setError('Unauthorized access. Admin credentials required.')
+      setError('Only @neu.edu.ph institutional emails are permitted for admin registration.')
       setIsLoading(false)
       return
     }
 
     try {
-      await signInWithEmailAndPassword(auth, email, password)
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+      const user = userCredential.user
+
+      // Create user profile in Firestore
+      const userRef = doc(db, 'users', user.uid)
+      const userData = {
+        id: user.uid,
+        email: email.toLowerCase(),
+        fullName: fullName,
+        role: 'admin',
+        isBlocked: false,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      }
+
+      await setDoc(userRef, userData)
+
+      // Create admin marker in Firestore to satisfy security rules exists() check
+      const adminRef = doc(db, 'admins', user.uid)
+      await setDoc(adminRef, { uid: user.uid })
+
       router.push('/admin')
     } catch (err: any) {
-      setError('Authentication failed. Please check your credentials.')
+      console.error(err)
+      setError(err.message || 'An error occurred during registration.')
     } finally {
       setIsLoading(false)
     }
@@ -47,7 +73,7 @@ export default function AdminLoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-primary p-4 overflow-hidden relative">
       <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
-        <span className="text-[20vw] font-black text-white/5 uppercase select-none leading-none">ADMIN</span>
+        <span className="text-[20vw] font-black text-white/5 uppercase select-none leading-none">ROOT</span>
       </div>
 
       <div className="w-full max-w-lg relative z-10">
@@ -63,25 +89,33 @@ export default function AdminLoginPage() {
                   className="object-contain"
                 />
               </div>
-              <LockKeyhole className="h-8 w-8 text-primary" />
+              <UserPlus className="h-8 w-8 text-primary" />
             </div>
             <div className="space-y-2">
-              <CardTitle className="text-4xl font-black uppercase italic tracking-tighter">System Portal</CardTitle>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Administrator Gateway</p>
+              <CardTitle className="text-4xl font-black uppercase italic tracking-tighter">Admin Enrollment</CardTitle>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Authorized Personnel Creation</p>
             </div>
           </CardHeader>
 
-          <form onSubmit={handleLogin}>
-            <CardContent className="px-12 py-6 space-y-6">
+          <form onSubmit={handleRegister}>
+            <CardContent className="px-12 py-6 space-y-8">
               {error && (
-                <Alert variant="destructive" className="mb-8 rounded-none border-2 border-destructive bg-transparent">
+                <Alert variant="destructive" className="rounded-none border-2 border-destructive bg-transparent">
                   <AlertDescription className="font-bold uppercase text-xs">{error}</AlertDescription>
                 </Alert>
               )}
               <div className="space-y-6">
                 <Input
+                  placeholder="FULL NAME"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  disabled={isLoading}
+                  required
+                  className="h-14 border-x-0 border-t-0 border-b-2 border-primary/10 bg-transparent rounded-none focus-visible:ring-0 focus-visible:border-primary px-0 text-xl font-bold uppercase placeholder:text-primary/5"
+                />
+                <Input
                   type="email"
-                  placeholder="ADMIN@NEU.EDU.PH"
+                  placeholder="INSTITUTIONAL EMAIL"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
@@ -101,16 +135,12 @@ export default function AdminLoginPage() {
             </CardContent>
             <CardFooter className="px-12 pb-12 pt-6 flex flex-col gap-6">
               <Button type="submit" className="w-full h-16 bg-primary hover:bg-black text-white rounded-none text-xl font-black uppercase tracking-tighter" disabled={isLoading}>
-                {isLoading ? 'Processing...' : 'Unlock Systems'}
+                {isLoading ? 'Creating Identity...' : 'Register Administrator'}
               </Button>
               <div className="flex justify-between w-full">
-                <Link href="/login" className="text-[10px] font-black uppercase tracking-widest text-primary/40 flex items-center gap-2 hover:text-primary transition-colors">
+                <Link href="/admin/login" className="text-[10px] font-black uppercase tracking-widest text-primary/40 flex items-center gap-2 hover:text-primary transition-colors">
                   <ArrowLeft className="h-3 w-3" />
-                  Return to Visitor Portal
-                </Link>
-                <Link href="/admin/register" className="text-[10px] font-black uppercase tracking-widest text-primary/40 flex items-center gap-2 hover:text-primary transition-colors">
-                  <UserPlus className="h-3 w-3" />
-                  Enroll Admin
+                  Existing Admin?
                 </Link>
               </div>
             </CardFooter>

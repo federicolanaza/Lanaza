@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { useStore } from '@/lib/store'
+import { useUser, useDoc, useFirestore, useAuth, useMemoFirebase } from '@/firebase'
+import { doc } from 'firebase/firestore'
 import { PlaceHolderImages } from '@/lib/placeholder-images'
 import { StatCards } from '@/components/admin/StatCards'
 import { UserTable } from '@/components/admin/UserTable'
@@ -21,35 +22,66 @@ import {
   Bell,
   Search as SearchIcon,
   Settings,
-  ArrowUpRight
+  ArrowUpRight,
+  Loader2
 } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { signOut } from 'firebase/auth'
 
 export default function AdminPage() {
-  const { currentUser, logout, visits } = useStore()
+  const { user, isUserLoading } = useUser()
+  const auth = useAuth()
   const { toast } = useToast()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState('overview')
 
+  // Memoize admin document reference
+  const adminDocRef = useMemoFirebase(() => {
+    if (!user) return null
+    return doc(useFirestore(), 'admins', user.uid)
+  }, [user])
+
+  const { data: adminData, isLoading: isAdminDataLoading } = useDoc(adminDocRef)
+
   const logo = PlaceHolderImages.find(img => img.id === 'neu-logo')
 
   useEffect(() => {
-    if (!currentUser || currentUser.role !== 'Admin') {
+    if (!isUserLoading && !user) {
       router.push('/admin/login')
-    } else {
+    }
+  }, [user, isUserLoading, router])
+
+  useEffect(() => {
+    if (!isAdminDataLoading && adminData === null && user) {
+      // User is logged in but not an admin
+      toast({
+        title: "Access Denied",
+        description: "You do not have administrative privileges.",
+        variant: "destructive"
+      })
+      signOut(auth).then(() => router.push('/admin/login'))
+    } else if (adminData && user) {
       toast({
         title: "Welcome to NEU Library!",
         description: "Administrative access granted.",
       })
     }
-  }, [currentUser, router])
+  }, [adminData, isAdminDataLoading, user, auth, router, toast])
 
-  if (!currentUser || currentUser.role !== 'Admin') return null
+  if (isUserLoading || isAdminDataLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
-  const handleLogout = () => {
-    logout()
+  if (!user || !adminData) return null
+
+  const handleLogout = async () => {
+    await signOut(auth)
     router.push('/admin/login')
   }
 
@@ -64,7 +96,6 @@ export default function AdminPage() {
               alt="NEU Logo" 
               fill 
               className="object-contain p-0.5"
-              data-ai-hint={logo?.imageHint}
             />
           </div>
           <div className="flex flex-col">
@@ -106,7 +137,7 @@ export default function AdminPage() {
               <AvatarFallback className="bg-primary text-primary-foreground">AD</AvatarFallback>
             </Avatar>
             <div className="flex flex-col overflow-hidden">
-              <span className="text-sm font-semibold truncate text-sidebar-foreground">{currentUser.name}</span>
+              <span className="text-sm font-semibold truncate text-sidebar-foreground">{user.displayName || user.email}</span>
               <span className="text-xs text-sidebar-foreground/50 truncate">Administrator</span>
             </div>
           </div>
@@ -166,8 +197,7 @@ export default function AdminPage() {
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsContent value="overview" className="space-y-8 mt-0 border-none p-0 outline-none">
-              <StatCards visits={visits} />
-              
+              <StatCards visits={[]} />
               <div className="grid gap-6 lg:grid-cols-3">
                 <Card className="lg:col-span-2 border-none shadow-sm ring-1 ring-border">
                    <CardHeader className="flex flex-row items-center justify-between">
@@ -180,45 +210,7 @@ export default function AdminPage() {
                      </Button>
                    </CardHeader>
                    <CardContent className="pt-2">
-                      <VisitorChart visits={visits} />
-                   </CardContent>
-                </Card>
-
-                <Card className="border-none shadow-sm ring-1 ring-border h-full">
-                   <CardHeader>
-                     <CardTitle className="text-xl">Recent Activity</CardTitle>
-                     <CardDescription>Latest visitor arrivals.</CardDescription>
-                   </CardHeader>
-                   <CardContent>
-                      <div className="space-y-4">
-                        {visits.slice(0, 6).map((visit) => (
-                          <div key={visit.id} className="flex items-center gap-4 group cursor-default">
-                            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                               <span className="text-xs font-bold text-primary">{visit.userName.charAt(0)}</span>
-                            </div>
-                            <div className="flex-1 overflow-hidden">
-                              <div className="flex items-center justify-between">
-                                <span className="font-semibold text-sm truncate">{visit.userName}</span>
-                                <span className="text-[10px] text-muted-foreground font-medium">
-                                  {new Date(visit.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </span>
-                              </div>
-                              <p className="text-xs text-muted-foreground truncate">{visit.department}</p>
-                            </div>
-                          </div>
-                        ))}
-                        {visits.length === 0 && (
-                          <div className="text-center py-12">
-                             <LayoutDashboard className="h-12 w-12 text-muted/30 mx-auto mb-3" />
-                             <p className="text-sm text-muted-foreground">No recent check-ins.</p>
-                          </div>
-                        )}
-                      </div>
-                      {visits.length > 6 && (
-                        <Button variant="ghost" className="w-full mt-6 text-xs" onClick={() => setActiveTab('users')}>
-                          View All Activity
-                        </Button>
-                      )}
+                      <VisitorChart visits={[]} />
                    </CardContent>
                 </Card>
               </div>
