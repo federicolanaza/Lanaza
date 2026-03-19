@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
 import { Toaster } from '@/components/ui/toaster'
-import { LogOut, ArrowRight, MapPin, Sparkles, User, GraduationCap, Fingerprint } from 'lucide-react'
+import { LogOut, ArrowRight } from 'lucide-react'
 
 const DEPARTMENTS = [
   'College of Engineering',
@@ -51,7 +51,7 @@ export default function VisitorPage() {
     if (currentUser) {
       toast({
         title: "Welcome to NEU Library!",
-        description: `Authenticated as ${currentUser.name}`,
+        description: `Authenticated as ${currentUser.email}`,
       })
 
       // Track Visitor Session
@@ -107,6 +107,12 @@ export default function VisitorPage() {
     }, 800)
   }
 
+  // Format the name for display (handle email prefixes with dots/underscores)
+  const formattedName = currentUser.name.replace(/[._]/g, ' ')
+  const nameParts = formattedName.split(' ')
+  const firstName = nameParts[0]
+  const lastName = nameParts.slice(1).join(' ')
+
   return (
     <div className="min-h-screen bg-white text-black">
       <nav className="border-b border-primary/10 py-8">
@@ -131,20 +137,20 @@ export default function VisitorPage() {
       <main className="max-w-7xl mx-auto px-8 py-20 flex flex-col lg:flex-row gap-20">
         <div className="lg:w-1/3 space-y-12">
           <div className="space-y-4">
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black block">Verified Identity</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black block">System Identity</span>
             <h2 className="text-6xl font-black italic uppercase leading-[0.9] tracking-tighter text-black">
-              {currentUser.name.split(' ')[0]}<br />{currentUser.name.split(' ')[1] || ''}
+              {firstName}<br />{lastName || ''}
             </h2>
           </div>
 
           <div className="space-y-6 pt-8 border-t border-primary/10">
             <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-black uppercase tracking-widest text-black">Student ID</span>
-              <span className="text-2xl font-black text-black">{currentUser.studentId}</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-black">Institutional Email</span>
+              <span className="text-lg font-bold text-black truncate">{currentUser.email}</span>
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-black uppercase tracking-widest text-black">Email Address</span>
-              <span className="text-lg font-bold text-black truncate">{currentUser.email}</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-black">Access Type</span>
+              <span className="text-lg font-bold text-black uppercase">{currentUser.role}</span>
             </div>
           </div>
         </div>

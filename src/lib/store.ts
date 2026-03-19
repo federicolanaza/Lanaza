@@ -1,3 +1,4 @@
+
 "use client"
 
 import { create } from 'zustand'
@@ -24,7 +25,7 @@ export interface VisitRecord {
   reasonForVisit: string
 }
 
-interface LibreState {
+interface VirtuLibState {
   currentUser: User | null
   users: User[]
   visits: VisitRecord[]
@@ -36,10 +37,9 @@ interface LibreState {
 
 const DEFAULT_USERS: User[] = [
   { id: '1', name: 'Admin User', email: 'admin@neu.edu.ph', role: 'Admin', isBlocked: false },
-  { id: '2', name: 'John Doe', email: 'j.doe@neu.edu.ph', studentId: '2023-0001', role: 'Visitor', isBlocked: false },
 ]
 
-export const useStore = create<LibreState>()(
+export const useStore = create<VirtuLibState>()(
   persist(
     (set, get) => ({
       currentUser: null,
@@ -86,7 +86,7 @@ export const useStore = create<LibreState>()(
       }))
     }),
     {
-      name: 'libre-connect-storage',
+      name: 'virtulib-storage',
     }
   )
 )
