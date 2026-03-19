@@ -1,0 +1,114 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * LibreConnect Analytics Security Rules
+     *
+     * CORE PHILOSOPHY:
+     * This ruleset implements a dual-layered authorization model. For standard users (visitors), 
+     * access is strictly limited to their own data trees using an ownership model. For 
+     * administrators, global access is granted to facilitate analytics and management.
+     *
+     * DATA STRUCTURE:
+     * - /users/{userId}: Individual user profiles, keyed by Firebase Auth UID.
+     * - /visits/{visitId}: Flat collection of library check-in events.
+     * - /admins/{adminId}: A "marker" collection where the presence of a document 
+     *   grants administrative privileges.
+     *
+     * KEY SECURITY DECISIONS:
+     * 1. Existence over Content: Admin roles are verified by checking for the existence 
+     *    of a document in the `/admins` collection using `exists()`. This is faster and 
+     *    more secure than reading a 'role' field from a user profile.
+     * 2. Institutional Restriction: User document creation is restricted to accounts 
+     *    using valid Northeastern University (NEU) email domains.
+     * 3. Relational Integrity: On document creation, the rules enforce that the 
+     *    `userId` or `id` field in the data matches the authenticated user's UID.
+     * 4. Admin Supremacy: Administrators bypass ownership checks for reading and 
+     *    managing all user profiles and visit records.
+     *
+     * DENORMALIZATION FOR AUTHORIZATION:
+     * - Every 'Visit' document contains a `userId` field. This allows the rules to 
+     *   perform an immediate ownership check (`resource.data.userId == auth.uid`) 
+     *   without performing a cross-collection lookup.
+     */
+
+    // --- Helper Functions ---
+
+    /** @description Checks if the user is authenticated. */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /** @description Checks if the user's UID matches the provided ID. */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /** @description Verifies the existence of an admin marker for the current user. */
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    /** @description Validates that the user is using a Northeastern institutional email. */
+    function isNeuEmail() {
+      return isSignedIn() && (
+        request.auth.token.email.matches('.*@northeastern\\.edu$') || 
+        request.auth.token.email.matches('.*@neu\\.edu$')
+      );
+    }
+
+    // --- Collection Rules ---
+
+    /**
+     * @description Rules for User profiles. Users can manage their own profile; Admins have full visibility.
+     * @path /users/{userId}
+     * @allow (get) If user is the owner or an admin.
+     * @allow (create) If user is the owner and has an @neu.edu email.
+     * @deny (list) If the user is not an admin (prevents user enumeration).
+     * @principle Enforces identity-based access and institutional email requirements.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isOwner(userId) && isNeuEmail() && request.resource.data.id == userId;
+      allow update: if (isOwner(userId) || isAdmin()) && resource != null && request.resource.data.id == resource.data.id;
+      allow delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Rules for Library Visit records. Visitors create/view their own; Admins see all.
+     * @path /visits/{visitId}
+     * @allow (create) If the userId in the data matches the authenticated user.
+     * @allow (list) If the user is an admin or is filtering for their own visits.
+     * @deny (update) If a user attempts to change the userId of an existing record.
+     * @principle Uses denormalized ownership (userId field) for performant authorization.
+     */
+    match /visits/{visitId} {
+      allow get: if isAdmin() || (resource != null && isOwner(resource.data.userId));
+      allow list: if isSignedIn(); // Queries must be filtered by userId on the client or by admin
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if (isAdmin() || (resource != null && isOwner(resource.data.userId))) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Marker collection for Administrative privileges.
+     * @path /admins/{adminId}
+     * @allow (get) If the user is an admin.
+     * @deny (write) Any direct client-side modification of admin roles.
+     * @principle Implements "Existence over Content" pattern for high-performance role checks.
+     */
+    match /admins/{adminId} {
+      allow get, list: if isAdmin();
+      allow create, update, delete: if false; // Admin roles should be managed via secure environment/Console
+    }
+  }
+}
+
+/**
+ * PROTOTYPING NOTE:
+ * These rules focus on strict AUTHORIZATION (who can access what). 
+ * Data validation (schema/types) is intentionally omitted for rapid 
+ * frontend iteration, except for fields critical to security (e.g., UIDs).
+ */

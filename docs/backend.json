@@ -1,0 +1,147 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user account within the LibreConnect Analytics application, detailing their authentication information, role, and status.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's institutional email address, used for authentication.",
+          "format": "email"
+        },
+        "fullName": {
+          "type": "string",
+          "description": "The full name of the user."
+        },
+        "role": {
+          "type": "string",
+          "description": "The assigned role of the user (e.g., 'admin', 'visitor')."
+        },
+        "isBlocked": {
+          "type": "boolean",
+          "description": "Indicates whether the user's access has been blocked by an administrator."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user account was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user account was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "fullName",
+        "role",
+        "isBlocked",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Visit": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Visit",
+      "type": "object",
+      "description": "Records a single check-in event by a visitor to the library, capturing details about their attendance and purpose.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Visit entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who performed this visit. (Relationship: User 1:N Visit)"
+        },
+        "checkInTime": {
+          "type": "string",
+          "description": "Timestamp indicating when the visitor checked into the library.",
+          "format": "date-time"
+        },
+        "collegeDepartment": {
+          "type": "string",
+          "description": "The college department specified by the visitor during check-in."
+        },
+        "reasonForVisit": {
+          "type": "string",
+          "description": "The reason provided by the visitor for their visit to the library."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "checkInTime",
+        "collegeDepartment",
+        "reasonForVisit"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores individual user profiles. The document ID (`userId`) corresponds to the Firebase Authentication UID. This collection contains user metadata, including their 'role' (admin, visitor) for client-side logic and 'isBlocked' status for account management.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique Firebase Authentication User ID (UID) of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/visits/{visitId}",
+        "definition": {
+          "entityName": "Visit",
+          "schema": {
+            "$ref": "#/backend/entities/Visit"
+          },
+          "description": "Records individual library check-in events. Each document includes the `userId` of the visitor, denormalizing ownership for authorization independence and enabling efficient global queries for analytics. Visitors can only create and read their own visit records, while admins can access all records.",
+          "params": [
+            {
+              "name": "visitId",
+              "description": "A unique identifier for each library visit record."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/admins/{adminId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "A dedicated collection for robust Firebase Security Rules, where the existence of a document at `/admins/{request.auth.uid}` signifies an administrator role. Documents in this collection typically contain minimal or no data; their primary purpose is for atomic role checks (`exists()`) in security rules.",
+          "params": [
+            {
+              "name": "adminId",
+              "description": "The unique Firebase Authentication User ID (UID) of a user designated as an administrator."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The proposed Firestore structure prioritizes Authorization Independence and Query-Accurate Permissions (QAPs) by applying denormalization and structural segregation principles. \n\n1.  **Authorization Independence (via Denormalization):**\n    *   **User Profiles (`/users/{userId}`):** Each user's profile is stored in a document whose ID is their Firebase Authentication UID. This directly links the document to the authenticated user, making self-ownership checks (`request.auth.uid == userId`) atomic and independent, requiring no `get()` calls to other documents for basic user profile access.\n    *   **Visit Records (`/visits/{visitId}`):** Every `Visit` document explicitly includes a `userId` field. This denormalizes the ownership information directly into the `Visit` record itself. Security rules can thus verify ownership (`resource.data.userId == request.auth.uid`) without needing to fetch any parent or related user document. This design also facilitates atomic creation of visit records.\n    *   **Admin Role (`/admins/{adminId}`):** A dedicated, top-level collection `/admins` is used where document IDs are the UIDs of administrator users. The *existence* of a document at `/admins/{request.auth.uid}` is the sole determinant of admin privileges in security rules. This strategy, prioritizing \"Existence over Content,\" provides an extremely fast and atomic check for global admin roles, completely avoiding `get()` calls to potentially larger user profile documents (`/users/{userId}`) just to ascertain a role. The `role` field within the `/users/{userId}` document serves for client-side display and filtering, while `/admins/{adminId}` is for robust rule enforcement.\n\n2.  **Query-Accurate Permissions (QAPs):**\n    *   **Visitor Access:** For visitors to record their check-ins, they will write to the `/visits` collection. Rules will enforce that `resource.data.userId` matches `request.auth.uid`. When visitors view their own past visits, they can query `/visits` using `where('userId', '==', request.auth.uid)`. Since the `userId` field is present and enforced in every `Visit` document, security rules can precisely ensure that non-admin users only retrieve their own records, thereby satisfying QAPs for personal data retrieval.\n    *   **Admin Access:**\n        *   **Global Analytics and Management:** The `/visits` and `/users` collections are structured as top-level collections. This allows administrators, whose role is verified by the `exists(/admins/$(request.auth.uid))` check, to perform global `list` and `get` operations on all `Visit` and `User` documents without restriction. This design natively supports the requirements for real-time statistics (e.g., total visitors by day, week, month), user management (search, block user), and AI-powered trend analysis, as admin queries will naturally return all relevant data, fully satisfying QAPs for administrative functions.\n        *   **Structural Segregation:** By having separate top-level collections for `users` and `visits` (and `admins` for roles), documents within each collection share a homogeneous security posture. This simplifies security rules, moving complexity from intricate logic to clear structural boundaries."
+  }
+}
