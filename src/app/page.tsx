@@ -1,3 +1,4 @@
+
 "use client"
 
 import Image from 'next/image'
@@ -5,6 +6,7 @@ import Link from 'next/link'
 import { Book, Briefcase, ArrowRight, ShieldCheck } from 'lucide-react'
 import { PlaceHolderImages } from '@/lib/placeholder-images'
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 export default function LandingPage() {
   const logo = PlaceHolderImages.find(img => img.id === 'neu-logo')
@@ -74,14 +76,16 @@ export default function LandingPage() {
         </Link>
       </div>
 
-      {/* Footer / Admin Link */}
-      <div className="mt-20 pt-8 border-t border-slate-200 w-full max-w-xs flex flex-col items-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-        <Link 
-          href="/admin/login" 
-          className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-colors"
-        >
-          <ShieldCheck className="h-3 w-3" />
-          Administrative Control
+      {/* Admin Control - Prominent Entry Point */}
+      <div className="mt-16 w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-1000">
+        <Link href="/admin/login" className="block">
+          <Button 
+            variant="outline" 
+            className="w-full h-16 bg-white border-2 border-slate-200 text-slate-400 hover:text-primary hover:border-primary hover:bg-primary/5 rounded-2xl transition-all group shadow-sm flex items-center justify-center"
+          >
+            <ShieldCheck className="h-6 w-6 mr-3 group-hover:scale-110 transition-transform" />
+            <span className="text-[11px] font-black uppercase tracking-[0.25em]">Administrative Control Center</span>
+          </Button>
         </Link>
       </div>
     </div>
