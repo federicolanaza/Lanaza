@@ -7,10 +7,9 @@ import { useStore } from '@/lib/store'
 import { PlaceHolderImages } from '@/lib/placeholder-images'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Label } from '@/components/ui/label'
-import { Settings, ArrowRight, UserPlus } from 'lucide-react'
+import { Settings, ArrowRight, UserPlus, ShieldCheck } from 'lucide-react'
 import Link from 'next/link'
 
 export default function LoginPage() {
@@ -60,7 +59,7 @@ export default function LoginPage() {
               className="object-contain"
             />
           </div>
-          <h1 className="text-6xl font-black leading-tight mb-6">VIRTU<br />LIB.</h1>
+          <h1 className="text-6xl font-black leading-tight mb-6 tracking-tighter italic">VIRTU<br />LIB.</h1>
           <p className="text-xl text-white/70 font-medium tracking-wide">
             The future of library visitor management at New Era University. Secure, seamless, and data-driven.
           </p>
@@ -79,18 +78,18 @@ export default function LoginPage() {
                 className="object-contain"
               />
             </div>
-            <h1 className="text-3xl font-black uppercase tracking-tighter">VirtuLib</h1>
+            <h1 className="text-3xl font-black uppercase tracking-tighter italic">VirtuLib</h1>
           </div>
 
           <div className="space-y-2 mb-10">
             <h2 className="text-4xl font-black uppercase italic tracking-tighter">Visitor Identity</h2>
-            <p className="text-muted-foreground font-medium uppercase text-xs tracking-[0.2em]">Institutional Access Only</p>
+            <p className="text-muted-foreground font-black uppercase text-[10px] tracking-[0.3em]">Institutional Access Only</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
             {error && (
               <Alert variant="destructive" className="border-2 border-destructive bg-transparent rounded-none">
-                <AlertDescription className="font-bold">{error}</AlertDescription>
+                <AlertDescription className="font-bold uppercase text-xs">{error}</AlertDescription>
               </Alert>
             )}
             
@@ -104,7 +103,7 @@ export default function LoginPage() {
                     placeholder="NAME@NEU.EDU.PH"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="h-14 border-x-0 border-t-0 border-b-2 border-primary/10 bg-transparent rounded-none focus-visible:ring-0 focus-visible:border-primary px-0 text-lg font-bold uppercase placeholder:text-primary/10"
+                    className="h-14 border-x-0 border-t-0 border-b-2 border-primary/10 bg-transparent rounded-none focus-visible:ring-0 focus-visible:border-primary px-0 text-xl font-bold uppercase placeholder:text-primary/5"
                     required
                   />
                 </div>
@@ -117,28 +116,49 @@ export default function LoginPage() {
               disabled={isLoading}
             >
               {isLoading ? 'VERIFYING...' : (
-                <span className="flex items-center gap-2">
+                <span className="flex items-center gap-3">
                   Verify Access
-                  <ArrowRight className="h-6 w-6 transition-transform group-hover:translate-x-2" />
+                  <ArrowRight className="h-6 w-6 transition-transform group-hover:translate-x-3" />
                 </span>
               )}
             </Button>
             
-            <div className="pt-8 flex flex-col items-center gap-4">
-              <Link 
-                href="/admin/login" 
-                className="text-[10px] font-black uppercase tracking-widest text-primary/40 hover:text-primary transition-colors flex items-center gap-2"
-              >
-                <Settings className="h-3 w-3" />
-                Administrator Control Center
-              </Link>
-              <Link 
-                href="/admin/register" 
-                className="text-[10px] font-black uppercase tracking-widest text-primary/40 hover:text-primary transition-colors flex items-center gap-2"
-              >
-                <UserPlus className="h-3 w-3" />
-                Enroll New Administrator
-              </Link>
+            {/* Design Domain for Admin Links */}
+            <div className="pt-12 mt-8 border-t border-primary/5">
+              <div className="p-8 bg-primary/[0.02] border border-primary/5 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/[0.03] -mr-12 -mt-12 rotate-45 group-hover:bg-primary/[0.05] transition-all duration-500" />
+                
+                <div className="relative z-10 space-y-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <ShieldCheck className="h-4 w-4 text-primary/30" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/30">System Infrastructure</span>
+                  </div>
+
+                  <div className="grid gap-4">
+                    <Link 
+                      href="/admin/login" 
+                      className="group/link flex items-center justify-between p-4 border border-transparent hover:border-primary/10 hover:bg-white transition-all"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Settings className="h-4 w-4 text-primary/40 group-hover/link:rotate-90 transition-transform duration-500" />
+                        <span className="text-[11px] font-black uppercase tracking-widest text-primary/60 group-hover/link:text-primary">Control Center</span>
+                      </div>
+                      <ArrowRight className="h-3 w-3 text-primary/20 group-hover/link:translate-x-1 transition-all" />
+                    </Link>
+
+                    <Link 
+                      href="/admin/register" 
+                      className="group/link flex items-center justify-between p-4 border border-transparent hover:border-primary/10 hover:bg-white transition-all"
+                    >
+                      <div className="flex items-center gap-3">
+                        <UserPlus className="h-4 w-4 text-primary/40 group-hover/link:scale-110 transition-transform" />
+                        <span className="text-[11px] font-black uppercase tracking-widest text-primary/60 group-hover/link:text-primary">Enroll Admin</span>
+                      </div>
+                      <ArrowRight className="h-3 w-3 text-primary/20 group-hover/link:translate-x-1 transition-all" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </div>
           </form>
         </div>
