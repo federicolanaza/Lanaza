@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { useUser, useDoc, useFirestore, useAuth, useMemoFirebase } from '@/firebase'
@@ -28,21 +28,52 @@ import {
   Settings,
   ArrowUpRight,
   Loader2,
-  UserPlus
+  UserPlus,
+  Filter,
+  X
 } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { signOut } from 'firebase/auth'
 import Link from 'next/link'
+import { useStore } from '@/lib/store'
+
+const DEPARTMENTS = [
+  'College of Engineering',
+  'College of Computer Science',
+  'College of Business Administration',
+  'College of Nursing',
+  'College of Law',
+  'College of Education',
+  'Arts and Sciences'
+]
+
+const PURPOSES = [
+  'Research / Thesis Work',
+  'Individual Study / Review',
+  'Group Collaboration',
+  'Book Borrowing / Return',
+  'Internet / Computer Access',
+  'Clearance / Administrative',
+  'Library Orientation'
+]
+
+const CATEGORIES = ['Student', 'Faculty', 'Staff']
 
 export default function AdminPage() {
   const { user, isUserLoading } = useUser()
   const auth = useAuth()
   const db = useFirestore()
-  const { toast } = useToast()
+  const { visits } = useStore()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState('overview')
+
+  // Filter State
+  const [filterDept, setFilterDept] = useState('all')
+  const [filterPurpose, setFilterPurpose] = useState('all')
+  const [filterCategory, setFilterCategory] = useState('all')
 
   const adminDocRef = useMemoFirebase(() => {
     if (!user) return null
@@ -93,6 +124,24 @@ export default function AdminPage() {
       return () => clearInterval(interval)
     }
   }, [user, adminData, db])
+
+  const filteredVisits = useMemo(() => {
+    return visits.filter(visit => {
+      const deptMatch = filterDept === 'all' || visit.department === filterDept
+      const purposeMatch = filterPurpose === 'all' || visit.reasonForVisit === filterPurpose
+      const categoryMatch = filterCategory === 'all' || 
+        (filterCategory === 'Employee' ? (visit.userCategory === 'Faculty' || visit.userCategory === 'Staff') : visit.userCategory === filterCategory)
+      return deptMatch && purposeMatch && categoryMatch
+    })
+  }, [visits, filterDept, filterPurpose, filterCategory])
+
+  const resetFilters = () => {
+    setFilterDept('all')
+    setFilterPurpose('all')
+    setFilterCategory('all')
+  }
+
+  const isFiltered = filterDept !== 'all' || filterPurpose !== 'all' || filterCategory !== 'all'
 
   if (isUserLoading || isAdminDataLoading) {
     return (
@@ -227,23 +276,71 @@ export default function AdminPage() {
             </div>
           </div>
 
+          {activeTab === 'overview' && (
+            <div className="flex flex-wrap items-center gap-4 p-4 bg-muted/30 border rounded-none">
+              <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-black/60 mr-2">
+                <Filter className="h-4 w-4" />
+                Quick Filters
+              </div>
+              
+              <Select value={filterDept} onValueChange={setFilterDept}>
+                <SelectTrigger className="w-[200px] h-9 rounded-none border-black/10 bg-white">
+                  <SelectValue placeholder="All Colleges" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Colleges</SelectItem>
+                  {DEPARTMENTS.map(dept => <SelectItem key={dept} value={dept}>{dept}</SelectItem>)}
+                </SelectContent>
+              </Select>
+
+              <Select value={filterPurpose} onValueChange={setFilterPurpose}>
+                <SelectTrigger className="w-[200px] h-9 rounded-none border-black/10 bg-white">
+                  <SelectValue placeholder="All Purposes" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Purposes</SelectItem>
+                  {PURPOSES.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                </SelectContent>
+              </Select>
+
+              <Select value={filterCategory} onValueChange={setFilterCategory}>
+                <SelectTrigger className="w-[150px] h-9 rounded-none border-black/10 bg-white">
+                  <SelectValue placeholder="All Types" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="Student">Students</SelectItem>
+                  <SelectItem value="Employee">Employees</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {isFiltered && (
+                <Button variant="ghost" size="sm" onClick={resetFilters} className="text-[10px] font-black uppercase tracking-widest text-destructive h-9 hover:bg-destructive/10">
+                  <X className="h-3 w-3 mr-1" /> Clear
+                </Button>
+              )}
+            </div>
+          )}
+
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsContent value="overview" className="space-y-8 mt-0 border-none p-0 outline-none">
-              <StatCards visits={[]} />
+              <StatCards visits={filteredVisits} />
               <div className="grid gap-6 lg:grid-cols-3">
                 <div className="lg:col-span-2 space-y-6">
                   <Card className="border-none shadow-sm ring-1 ring-border">
                      <CardHeader className="flex flex-row items-center justify-between">
                        <div>
                          <CardTitle className="text-xl">Visitor Trends</CardTitle>
-                         <CardDescription>Daily check-in volume over the last 7 days.</CardDescription>
+                         <CardDescription>
+                           {isFiltered ? 'Filtered daily volume' : 'Daily check-in volume over the last 7 days.'}
+                         </CardDescription>
                        </div>
                        <Button variant="ghost" size="sm" className="text-primary gap-1">
                          View Details <ArrowUpRight className="h-3 w-3" />
                        </Button>
                      </CardHeader>
                      <CardContent className="pt-2">
-                        <VisitorChart visits={[]} />
+                        <VisitorChart visits={filteredVisits} />
                      </CardContent>
                   </Card>
                 </div>

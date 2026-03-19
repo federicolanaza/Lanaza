@@ -5,6 +5,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 export type UserRole = 'Admin' | 'Visitor'
+export type UserCategory = 'Student' | 'Faculty' | 'Staff' | 'Other'
 
 export interface User {
   id: string
@@ -23,6 +24,7 @@ export interface VisitRecord {
   studentId?: string
   department: string
   reasonForVisit: string
+  userCategory: UserCategory
 }
 
 interface VirtuLibState {
@@ -53,7 +55,6 @@ export const useStore = create<VirtuLibState>()(
           }
           set({ currentUser: user })
         } else {
-          // If user doesn't exist, create a new visitor with the provided info
           const newUser: User = {
             id: Math.random().toString(36).substr(2, 9),
             name: name || email.split('@')[0],

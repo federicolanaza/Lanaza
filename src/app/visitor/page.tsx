@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { useStore } from '@/lib/store'
+import { useStore, UserCategory } from '@/lib/store'
 import { useFirestore } from '@/firebase'
 import { doc, setDoc, deleteDoc } from 'firebase/firestore'
 import { errorEmitter } from '@/firebase/error-emitter'
@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
 import { Toaster } from '@/components/ui/toaster'
-import { LogOut, ArrowRight } from 'lucide-react'
+import { LogOut, ArrowRight, User as UserIcon, GraduationCap, Briefcase } from 'lucide-react'
 
 const DEPARTMENTS = [
   'College of Engineering',
@@ -36,6 +36,12 @@ const PURPOSES = [
   'Library Orientation'
 ]
 
+const CATEGORIES: { id: UserCategory, label: string, icon: any }[] = [
+  { id: 'Student', label: 'Student', icon: GraduationCap },
+  { id: 'Faculty', label: 'Faculty', icon: Briefcase },
+  { id: 'Staff', label: 'Support Staff', icon: UserIcon }
+]
+
 export default function VisitorPage() {
   const { currentUser, addVisit, logout } = useStore()
   const db = useFirestore()
@@ -44,7 +50,8 @@ export default function VisitorPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
     department: '',
-    reasonForVisit: ''
+    reasonForVisit: '',
+    userCategory: '' as UserCategory | ''
   })
 
   const logo = PlaceHolderImages.find(img => img.id === 'neu-logo')
@@ -107,10 +114,10 @@ export default function VisitorPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!formData.department || !formData.reasonForVisit) {
+    if (!formData.department || !formData.reasonForVisit || !formData.userCategory) {
       toast({
         title: "Selection Required",
-        description: "Please specify your department and purpose.",
+        description: "Please complete all fields for check-in.",
         variant: "destructive"
       })
       return
@@ -118,12 +125,16 @@ export default function VisitorPage() {
 
     setIsSubmitting(true)
     setTimeout(() => {
-      addVisit(formData)
+      addVisit({
+        department: formData.department,
+        reasonForVisit: formData.reasonForVisit,
+        userCategory: formData.userCategory as UserCategory
+      })
       toast({
         title: "Check-in Successful!",
         description: "Welcome back. Enjoy your library session!",
       })
-      setFormData({ department: '', reasonForVisit: '' })
+      setFormData({ department: '', reasonForVisit: '', userCategory: '' })
       setIsSubmitting(false)
     }, 800)
   }
@@ -173,9 +184,33 @@ export default function VisitorPage() {
         <div className="flex-1 lg:max-w-2xl">
           <form onSubmit={handleSubmit} className="space-y-16">
             <div className="space-y-12">
-               <div className="space-y-6">
+              <div className="space-y-6">
                 <Label className="text-2xl font-black uppercase italic tracking-tighter flex items-center gap-3 text-black">
                   <span className="h-8 w-8 bg-primary text-white flex items-center justify-center not-italic text-sm">01</span>
+                  User Category
+                </Label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {CATEGORIES.map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, userCategory: cat.id }))}
+                      className={`h-24 px-4 flex flex-col items-center justify-center gap-2 text-xs font-bold uppercase tracking-tight border-2 transition-all ${
+                        formData.userCategory === cat.id 
+                        ? 'bg-black text-white border-black' 
+                        : 'bg-transparent text-black border-black/10 hover:border-black'
+                      }`}
+                    >
+                      <cat.icon className="h-6 w-6" />
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+               <div className="space-y-6">
+                <Label className="text-2xl font-black uppercase italic tracking-tighter flex items-center gap-3 text-black">
+                  <span className="h-8 w-8 bg-primary text-white flex items-center justify-center not-italic text-sm">02</span>
                   Select Department
                 </Label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -198,7 +233,7 @@ export default function VisitorPage() {
 
               <div className="space-y-6">
                 <Label className="text-2xl font-black uppercase italic tracking-tighter flex items-center gap-3 text-black">
-                  <span className="h-8 w-8 bg-primary text-white flex items-center justify-center not-italic text-sm">02</span>
+                  <span className="h-8 w-8 bg-primary text-white flex items-center justify-center not-italic text-sm">03</span>
                   Purpose of Visit
                 </Label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
