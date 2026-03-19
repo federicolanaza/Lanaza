@@ -8,19 +8,28 @@ service cloud.firestore {
 
     function isInstitutionalEmail() {
       // Use .lower() as CEL (Common Expression Language) does not support .toLocaleLowerCase()
-      return isSignedIn() && request.auth.token.email.lower().endsWith('@neu.edu.ph');
+      // Added a null check for robustness
+      return isSignedIn() && 
+             request.auth.token.email != null && 
+             request.auth.token.email.lower().endsWith('@neu.edu.ph');
+    }
+
+    function isDataInstitutional() {
+      // Validates the email domain directly from the request data
+      return request.resource.data.email != null && 
+             request.resource.data.email.lower().endsWith('@neu.edu.ph');
     }
     
     // User profiles
     match /users/{userId} {
       allow read: if isSignedIn();
-      allow write: if isSignedIn() && request.auth.uid == userId && isInstitutionalEmail();
+      allow write: if isSignedIn() && request.auth.uid == userId && (isInstitutionalEmail() || isDataInstitutional());
     }
 
     // Admin role verification
     match /admins/{userId} {
       allow read: if isSignedIn();
-      allow write: if isSignedIn() && request.auth.uid == userId && isInstitutionalEmail();
+      allow write: if isSignedIn() && request.auth.uid == userId && (isInstitutionalEmail() || isDataInstitutional());
     }
 
     // Real-time session tracking
