@@ -22,8 +22,8 @@ export default function LoginPage() {
     setIsLoading(true)
 
     // Simulate Institutional Domain Restriction
-    if (!email.endsWith('@neu.edu')) {
-      setError('Please use your institutional @neu.edu email address.')
+    if (!email.endsWith('@neu.edu.ph')) {
+      setError('Please use your institutional @neu.edu.ph email address.')
       setIsLoading(false)
       return
     }
@@ -67,7 +67,7 @@ export default function LoginPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="name@neu.edu"
+                  placeholder="name@neu.edu.ph"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
@@ -77,7 +77,7 @@ export default function LoginPage() {
               </div>
               <div className="flex items-start gap-2 rounded-lg bg-muted/30 p-3 text-xs text-muted-foreground">
                 <Info className="mt-0.5 h-4 w-4 shrink-0" />
-                <p>Use "admin@neu.edu" to access the administrator dashboard.</p>
+                <p>Use "admin@neu.edu.ph" to access the administrator dashboard.</p>
               </div>
             </CardContent>
             <CardFooter>

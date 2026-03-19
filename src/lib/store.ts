@@ -33,9 +33,9 @@ interface LibreState {
 }
 
 const DEFAULT_USERS: User[] = [
-  { id: '1', name: 'Admin User', email: 'admin@neu.edu', role: 'Admin', isBlocked: false },
-  { id: '2', name: 'John Doe', email: 'j.doe@neu.edu', role: 'Visitor', isBlocked: false },
-  { id: '3', name: 'Jane Smith', email: 'j.smith@neu.edu', role: 'Visitor', isBlocked: false },
+  { id: '1', name: 'Admin User', email: 'admin@neu.edu.ph', role: 'Admin', isBlocked: false },
+  { id: '2', name: 'John Doe', email: 'j.doe@neu.edu.ph', role: 'Visitor', isBlocked: false },
+  { id: '3', name: 'Jane Smith', email: 'j.smith@neu.edu.ph', role: 'Visitor', isBlocked: false },
 ]
 
 export const useStore = create<LibreState>()(
