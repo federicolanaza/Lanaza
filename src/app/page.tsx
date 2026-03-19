@@ -15,7 +15,7 @@ export default function LandingPage() {
       <div className="max-w-4xl w-full space-y-12">
         <div className="text-center space-y-8">
           <div className="flex justify-center">
-            <div className="relative h-48 w-48 md:h-64 md:w-64 transition-transform hover:scale-105 duration-700 animate-in fade-in zoom-in">
+            <div className="relative h-32 w-32 md:h-40 md:w-40 transition-transform hover:scale-105 duration-700 animate-in fade-in zoom-in">
               <Image 
                 src={logo?.imageUrl || ''} 
                 alt="NEU Logo" 
