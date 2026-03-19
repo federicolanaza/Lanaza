@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from 'react'
@@ -58,32 +57,32 @@ export default function LibraryCheckin() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
-      <Card className="max-w-md w-full bento-card border-none shadow-2xl">
+      <Card className="max-w-md w-full bento-card border-none shadow-2xl overflow-hidden">
         <CardHeader className="bg-primary text-white p-8 space-y-4">
-          <Link href="/" className="text-white/70 hover:text-white flex items-center text-xs font-bold uppercase tracking-widest transition-colors">
-            <ArrowLeft className="h-4 w-4 mr-2" /> Back to Choice
+          <Link href="/" className="text-white/70 hover:text-white flex items-center text-[10px] font-black uppercase tracking-widest transition-colors">
+            <ArrowLeft className="h-3 w-3 mr-2" /> Back to Choice
           </Link>
           <div className="flex items-center gap-4">
             <Book className="h-8 w-8" />
-            <CardTitle className="text-3xl font-extrabold tracking-tight">Library Check-in</CardTitle>
+            <CardTitle className="text-3xl font-black tracking-tight uppercase italic">Library Access</CardTitle>
           </div>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="p-8 space-y-6">
             <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase text-slate-500 tracking-wider">ID Number</Label>
+              <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Student ID Number</Label>
               <Input 
                 placeholder="20XX-XXXXX" 
                 required 
                 value={formData.idNumber}
                 onChange={e => setFormData(prev => ({ ...prev, idNumber: e.target.value }))}
-                className="h-12 bg-slate-50 border-slate-200 focus:ring-primary/20"
+                className="h-12 bg-slate-50 border-slate-200 focus:ring-primary/20 rounded-xl"
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase text-slate-500 tracking-wider">Department</Label>
+              <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">College / Department</Label>
               <Select onValueChange={val => setFormData(prev => ({ ...prev, department: val }))} required>
-                <SelectTrigger className="h-12 bg-slate-50 border-slate-200">
+                <SelectTrigger className="h-12 bg-slate-50 border-slate-200 rounded-xl">
                   <SelectValue placeholder="Select your college" />
                 </SelectTrigger>
                 <SelectContent>
@@ -94,9 +93,9 @@ export default function LibraryCheckin() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase text-slate-500 tracking-wider">Estimated Study Duration</Label>
+              <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Estimated Study Duration</Label>
               <Select onValueChange={val => setFormData(prev => ({ ...prev, studyDuration: val }))} required>
-                <SelectTrigger className="h-12 bg-slate-50 border-slate-200">
+                <SelectTrigger className="h-12 bg-slate-50 border-slate-200 rounded-xl">
                   <SelectValue placeholder="How long will you stay?" />
                 </SelectTrigger>
                 <SelectContent>
@@ -111,7 +110,7 @@ export default function LibraryCheckin() {
             <Button 
               type="submit" 
               disabled={isLoading}
-              className="w-full h-14 bg-primary text-lg font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform"
+              className="w-full h-14 bg-primary text-white text-lg font-black uppercase tracking-tighter shadow-lg shadow-primary/20 rounded-xl transition-all"
             >
               {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Complete Check-in'}
             </Button>

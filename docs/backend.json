@@ -1,8 +1,6 @@
-
 {
   "entities": {
     "User": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "User",
       "type": "object",
       "description": "Represents a user account in the system.",
@@ -14,52 +12,72 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "email", "fullName", "role"]
+    },
+    "LibraryLog": {
+      "title": "Library Log",
+      "type": "object",
+      "description": "Record of a library visitor check-in.",
+      "properties": {
+        "idNumber": { "type": "string" },
+        "department": { "type": "string" },
+        "studyDuration": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    },
+    "DeanLog": {
+      "title": "Dean Log",
+      "type": "object",
+      "description": "Record of a dean's office visitor check-in.",
+      "properties": {
+        "visitorName": { "type": "string" },
+        "studentId": { "type": "string" },
+        "purpose": { "type": "string" },
+        "status": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
     }
   },
   "auth": {
     "providers": ["password"]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/users/{userId}",
-        "definition": {
-          "schema": { "$ref": "#/backend/entities/User" },
-          "description": "User profiles and account settings."
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles and account settings."
+    },
+    "/admins/{userId}": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "uid": { "type": "string" },
+          "email": { "type": "string" },
+          "role": { "type": "string" },
+          "enrolledAt": { "type": "string" }
         }
       },
-      {
-        "path": "/admins/{userId}",
-        "definition": {
-          "schema": { 
-            "type": "object", 
-            "properties": { 
-              "uid": { "type": "string" }, 
-              "email": { "type": "string" }, 
-              "role": { "type": "string" },
-              "enrolledAt": { "type": "string" }
-            } 
-          },
-          "description": "Verified administrator identifiers for system access."
+      "description": "Verified administrator identifiers for system access."
+    },
+    "/active_sessions/{sessionId}": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "userId": { "type": "string" },
+          "email": { "type": "string" },
+          "userName": { "type": "string" },
+          "role": { "type": "string" },
+          "loginTime": { "type": "string" },
+          "lastSeen": { "type": "string" }
         }
       },
-      {
-        "path": "/active_sessions/{sessionId}",
-        "definition": {
-          "schema": { 
-            "type": "object", 
-            "properties": { 
-              "userId": { "type": "string" }, 
-              "email": { "type": "string" }, 
-              "userName": { "type": "string" }, 
-              "role": { "type": "string" }, 
-              "loginTime": { "type": "string" }, 
-              "lastSeen": { "type": "string" } 
-            } 
-          },
-          "description": "Real-time user session tracking for the admin dashboard."
-        }
-      }
-    ]
+      "description": "Real-time user session tracking for the admin dashboard."
+    },
+    "/library_logs/{logId}": {
+      "schema": "LibraryLog",
+      "description": "Historical library check-in records."
+    },
+    "/dean_logs/{logId}": {
+      "schema": "DeanLog",
+      "description": "Historical dean's office queue records."
+    }
   }
 }
