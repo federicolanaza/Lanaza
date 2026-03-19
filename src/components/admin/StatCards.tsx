@@ -19,56 +19,46 @@ export function StatCards({ visits }: StatCardsProps) {
 
   const stats = [
     {
-      title: "Today's Visitors",
+      title: "Today",
       value: dailyCount,
       icon: Clock,
-      description: "Since midnight",
-      color: "text-blue-600",
-      bg: "bg-blue-50"
+      description: "24h Volume",
     },
     {
-      title: "This Week",
+      title: "Weekly",
       value: weeklyCount,
       icon: Calendar,
-      description: "From Monday",
-      color: "text-violet-600",
-      bg: "bg-violet-50"
+      description: "Trailing 7D",
     },
     {
-      title: "This Month",
+      title: "Monthly",
       value: monthlyCount,
       icon: TrendingUp,
-      description: "Monthly total",
-      color: "text-indigo-600",
-      bg: "bg-indigo-50"
+      description: "Current Month",
     },
     {
-      title: "Total Visits",
+      title: "Total",
       value: totalCount,
       icon: Users,
-      description: "All-time records",
-      color: "text-primary",
-      bg: "bg-primary/10"
+      description: "Lifetime",
     }
   ]
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-0 md:grid-cols-2 lg:grid-cols-4 border border-primary/10 overflow-hidden">
       {stats.map((stat, i) => (
-        <Card key={i} className="border-none shadow-sm overflow-hidden group hover:shadow-md transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
-            <div className={`rounded-lg p-2 ${stat.bg} ${stat.color}`}>
-              <stat.icon className="h-4 w-4" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold tracking-tight">{stat.value}</div>
-            <p className="text-xs text-muted-foreground mt-1">
+        <div key={i} className={`p-8 bg-white transition-all group hover:bg-primary hover:text-white ${i !== stats.length - 1 ? 'lg:border-r border-primary/10' : ''} ${i < 2 ? 'border-b lg:border-b-0 border-primary/10' : ''}`}>
+          <div className="flex items-center justify-between mb-8">
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-50">{stat.title}</span>
+            <stat.icon className="h-5 w-5 opacity-20 group-hover:opacity-100 transition-opacity" />
+          </div>
+          <div className="space-y-1">
+            <div className="text-5xl font-black tracking-tighter leading-none">{stat.value}</div>
+            <p className="text-[10px] font-bold uppercase tracking-widest opacity-40 group-hover:opacity-60">
               {stat.description}
             </p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       ))}
     </div>
   )

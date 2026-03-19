@@ -7,10 +7,10 @@ import { useStore } from '@/lib/store'
 import { PlaceHolderImages } from '@/lib/placeholder-images'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Label } from '@/components/ui/label'
-import { Info, UserCircle, Settings, Fingerprint, GraduationCap, User } from 'lucide-react'
+import { UserCircle, Settings, Fingerprint, GraduationCap, User, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
 export default function LoginPage() {
@@ -54,10 +54,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12">
-      <div className="w-full max-w-md">
-        <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-4 relative h-24 w-24 overflow-hidden rounded-full border-4 border-white shadow-xl bg-white p-1">
+    <div className="flex min-h-screen items-stretch bg-white">
+      {/* Left Visual Side */}
+      <div className="hidden lg:flex w-1/2 bg-primary items-center justify-center p-12 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-64 h-64 border-t-8 border-l-8 border-white" />
+          <div className="absolute bottom-0 right-0 w-64 h-64 border-b-8 border-r-8 border-white" />
+        </div>
+        <div className="relative z-10 text-white max-w-lg">
+          <div className="mb-8 relative h-32 w-32 overflow-hidden rounded-full bg-white p-2">
             <Image 
               src={logo?.imageUrl || ''} 
               alt="NEU Logo" 
@@ -66,106 +71,109 @@ export default function LoginPage() {
               data-ai-hint={logo?.imageHint}
             />
           </div>
-          <h1 className="font-headline text-3xl font-bold tracking-tight text-foreground">LibreConnect</h1>
-          <p className="mt-2 text-muted-foreground font-medium">NEU Library Visitor Portal</p>
+          <h1 className="text-6xl font-black leading-tight mb-6">LIBRE<br />CONNECT.</h1>
+          <p className="text-xl text-white/70 font-medium tracking-wide">
+            The future of library visitor management at New Era University. Secure, seamless, and data-driven.
+          </p>
         </div>
+      </div>
 
-        <Card className="border-none shadow-2xl">
-          <CardHeader className="space-y-1">
-            <div className="flex items-center gap-2 text-primary mb-2">
-              <UserCircle className="h-5 w-5" />
-              <span className="text-xs font-bold uppercase tracking-widest">Visitor Identity Verification</span>
+      {/* Right Form Side */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12">
+        <div className="w-full max-w-md">
+          <div className="mb-12 lg:hidden">
+            <div className="relative h-16 w-16 mb-4">
+               <Image 
+                src={logo?.imageUrl || ''} 
+                alt="NEU Logo" 
+                fill 
+                className="object-contain"
+              />
             </div>
-            <CardTitle className="text-2xl font-bold">Institutional Sign-in</CardTitle>
-            <CardDescription>
-              Verify your credentials to log your library visit
-            </CardDescription>
-          </CardHeader>
-          <form onSubmit={handleLogin}>
-            <CardContent className="grid gap-4">
-              {error && (
-                <Alert variant="destructive" className="border-none bg-destructive/10 text-destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-              
-              <div className="grid gap-2">
-                <Label htmlFor="name" className="text-xs font-bold uppercase text-muted-foreground">Full Name</Label>
+            <h1 className="text-3xl font-black uppercase tracking-tighter">LibreConnect</h1>
+          </div>
+
+          <div className="space-y-2 mb-10">
+            <h2 className="text-4xl font-black uppercase italic tracking-tighter">Visitor Identity</h2>
+            <p className="text-muted-foreground font-medium uppercase text-xs tracking-[0.2em]">Institutional Access Only</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-6">
+            {error && (
+              <Alert variant="destructive" className="border-2 border-destructive bg-transparent rounded-none">
+                <AlertDescription className="font-bold">{error}</AlertDescription>
+              </Alert>
+            )}
+            
+            <div className="grid gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-[10px] font-black uppercase tracking-widest text-primary/50">Full Name</Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="name"
-                    type="text"
-                    placeholder="Juan Dela Cruz"
+                    placeholder="E.G. JUAN DELA CRUZ"
                     value={formData.name}
                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    disabled={isLoading}
+                    className="h-14 border-x-0 border-t-0 border-b-2 border-primary/10 bg-transparent rounded-none focus-visible:ring-0 focus-visible:border-primary px-0 text-lg font-bold uppercase placeholder:text-primary/10"
                     required
-                    className="pl-10 bg-muted/50 border-muted h-12"
                   />
                 </div>
               </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="email" className="text-xs font-bold uppercase text-muted-foreground">Institutional Email</Label>
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-primary/50">Institutional Email</Label>
                 <div className="relative">
-                  <Fingerprint className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="email"
                     type="email"
-                    placeholder="name@neu.edu.ph"
+                    placeholder="NAME@NEU.EDU.PH"
                     value={formData.email}
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    disabled={isLoading}
+                    className="h-14 border-x-0 border-t-0 border-b-2 border-primary/10 bg-transparent rounded-none focus-visible:ring-0 focus-visible:border-primary px-0 text-lg font-bold uppercase placeholder:text-primary/10"
                     required
-                    className="pl-10 bg-muted/50 border-muted h-12"
                   />
                 </div>
               </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="studentId" className="text-xs font-bold uppercase text-muted-foreground">Student / ID Number</Label>
+              <div className="space-y-2">
+                <Label htmlFor="studentId" className="text-[10px] font-black uppercase tracking-widest text-primary/50">Student ID Number</Label>
                 <div className="relative">
-                  <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="studentId"
-                    type="text"
                     placeholder="20XX-XXXX"
                     value={formData.studentId}
                     onChange={(e) => setFormData(prev => ({ ...prev, studentId: e.target.value }))}
-                    disabled={isLoading}
+                    className="h-14 border-x-0 border-t-0 border-b-2 border-primary/10 bg-transparent rounded-none focus-visible:ring-0 focus-visible:border-primary px-0 text-lg font-bold uppercase placeholder:text-primary/10"
                     required
-                    className="pl-10 bg-muted/50 border-muted h-12"
                   />
                 </div>
               </div>
+            </div>
 
-              <div className="flex items-start gap-2 rounded-lg bg-blue-50 p-3 text-xs text-blue-700 font-medium mt-2">
-                <Info className="mt-0.5 h-4 w-4 shrink-0" />
-                <p>Visitor check-in is mandatory. Your data is used for facility management and security.</p>
-              </div>
-            </CardContent>
-            <CardFooter className="flex flex-col gap-6">
-              <Button type="submit" className="w-full bg-primary hover:bg-primary/90 h-12 text-lg font-bold" disabled={isLoading}>
-                {isLoading ? 'Verifying...' : 'Authenticate Identity'}
-              </Button>
-              
-              <div className="w-full pt-4 border-t flex justify-center">
-                <Link 
-                  href="/admin/login" 
-                  className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors font-medium"
-                >
-                  <Settings className="h-3 w-3" />
-                  Administrator Control Center
-                </Link>
-              </div>
-            </CardFooter>
+            <Button 
+              type="submit" 
+              className="w-full h-16 bg-primary hover:bg-black text-white rounded-none text-xl font-black uppercase tracking-tighter group transition-all"
+              disabled={isLoading}
+            >
+              {isLoading ? 'VERIFYING...' : (
+                <span className="flex items-center gap-2">
+                  Verify Access
+                  <ArrowRight className="h-6 w-6 transition-transform group-hover:translate-x-2" />
+                </span>
+              )}
+            </Button>
+            
+            <div className="pt-8 flex flex-col items-center gap-4">
+              <Link 
+                href="/admin/login" 
+                className="text-[10px] font-black uppercase tracking-widest text-primary/40 hover:text-primary transition-colors flex items-center gap-2"
+              >
+                <Settings className="h-3 w-3" />
+                Administrator Control Center
+              </Link>
+            </div>
           </form>
-        </Card>
-        
-        <p className="mt-12 text-center text-xs text-muted-foreground font-medium uppercase tracking-widest">
-          New Era University Library Services
-        </p>
+        </div>
       </div>
     </div>
   )

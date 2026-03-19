@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from 'react'
@@ -8,9 +7,9 @@ import { useStore } from '@/lib/store'
 import { PlaceHolderImages } from '@/lib/placeholder-images'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { ShieldCheck, ArrowLeft } from 'lucide-react'
+import { ShieldCheck, ArrowLeft, LockKeyhole } from 'lucide-react'
 import Link from 'next/link'
 
 export default function AdminLoginPage() {
@@ -29,7 +28,7 @@ export default function AdminLoginPage() {
 
     // Admin-specific validation
     if (email !== 'admin@neu.edu.ph') {
-      setError('Unauthorized access. Please use a valid administrator credential.')
+      setError('Unauthorized access. Admin privileges required.')
       setIsLoading(false)
       return
     }
@@ -38,73 +37,74 @@ export default function AdminLoginPage() {
       login(email)
       router.push('/admin')
     } catch (err: any) {
-      setError(err.message || 'An error occurred during authentication.')
+      setError(err.message || 'An error occurred.')
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-900 px-4">
-      <div className="w-full max-w-md">
-        <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-4 relative h-20 w-20 overflow-hidden rounded-full border-2 border-primary/20 bg-white p-1">
-            <Image 
-              src={logo?.imageUrl || ''} 
-              alt="NEU Logo" 
-              fill 
-              className="object-contain"
-              data-ai-hint={logo?.imageHint}
-            />
-          </div>
-          <h1 className="font-headline text-2xl font-bold tracking-tight text-white">LibreConnect Admin</h1>
-          <p className="mt-2 text-slate-400 text-sm">Central Management System</p>
-        </div>
+    <div className="flex min-h-screen items-center justify-center bg-primary p-4 overflow-hidden relative">
+      {/* Background Decor */}
+      <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
+        <span className="text-[20vw] font-black text-white/5 uppercase select-none leading-none">ADMIN</span>
+      </div>
 
-        <Card className="border-none shadow-2xl bg-white">
-          <CardHeader className="space-y-1 text-center">
-            <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <ShieldCheck className="h-6 w-6" />
+      <div className="w-full max-w-lg relative z-10">
+        <Card className="rounded-none border-none shadow-2xl overflow-hidden creative-shadow">
+          <div className="h-2 bg-white/20 w-full" />
+          <CardHeader className="space-y-4 p-12 pb-6">
+            <div className="flex items-center justify-between">
+              <div className="relative h-12 w-12 p-1 bg-white">
+                <Image 
+                  src={logo?.imageUrl || ''} 
+                  alt="NEU Logo" 
+                  fill 
+                  className="object-contain"
+                />
+              </div>
+              <LockKeyhole className="h-8 w-8 text-primary" />
             </div>
-            <CardTitle className="text-xl font-bold">Administrator Portal</CardTitle>
-            <CardDescription>
-              Enter secure credentials to access the analytics dashboard
-            </CardDescription>
+            <div className="space-y-2">
+              <CardTitle className="text-4xl font-black uppercase italic tracking-tighter">System Portal</CardTitle>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Administrator Gateway</p>
+            </div>
           </CardHeader>
+
           <form onSubmit={handleLogin}>
-            <CardContent className="grid gap-4">
+            <CardContent className="px-12 py-6">
               {error && (
-                <Alert variant="destructive" className="bg-destructive/10 text-destructive border-none">
-                  <AlertDescription>{error}</AlertDescription>
+                <Alert variant="destructive" className="mb-8 rounded-none border-2 border-destructive bg-transparent">
+                  <AlertDescription className="font-bold uppercase text-xs">{error}</AlertDescription>
                 </Alert>
               )}
-              <div className="grid gap-2">
+              <div className="space-y-2">
                 <Input
                   id="email"
                   type="email"
-                  placeholder="admin@neu.edu.ph"
+                  placeholder="ADMIN@NEU.EDU.PH"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
                   required
-                  className="bg-slate-50 border-slate-200"
+                  className="h-14 border-x-0 border-t-0 border-b-2 border-primary/10 bg-transparent rounded-none focus-visible:ring-0 focus-visible:border-primary px-0 text-xl font-bold uppercase placeholder:text-primary/5"
                 />
               </div>
             </CardContent>
-            <CardFooter className="flex flex-col gap-4">
-              <Button type="submit" className="w-full bg-primary hover:bg-primary/90 py-6" disabled={isLoading}>
-                {isLoading ? 'Verifying...' : 'Unlock Dashboard'}
+            <CardFooter className="px-12 pb-12 pt-6 flex flex-col gap-6">
+              <Button type="submit" className="w-full h-16 bg-primary hover:bg-black text-white rounded-none text-xl font-black uppercase tracking-tighter" disabled={isLoading}>
+                {isLoading ? 'Processing...' : 'Unlock Systems'}
               </Button>
-              <Link href="/login" className="text-xs text-muted-foreground flex items-center gap-1 hover:text-primary transition-colors">
+              <Link href="/login" className="text-[10px] font-black uppercase tracking-widest text-primary/40 flex items-center gap-2 hover:text-primary transition-colors">
                 <ArrowLeft className="h-3 w-3" />
-                Return to Visitor Login
+                Return to Visitor Portal
               </Link>
             </CardFooter>
           </form>
         </Card>
         
-        <p className="mt-8 text-center text-[10px] text-slate-500 uppercase tracking-widest font-bold">
-          Secure Institutional Access • NEU
+        <p className="mt-8 text-center text-[10px] text-white/40 uppercase tracking-[0.5em] font-black">
+          New Era University • Security Protocol v2.5
         </p>
       </div>
     </div>
