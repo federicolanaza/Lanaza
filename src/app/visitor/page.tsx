@@ -260,8 +260,10 @@ export default function VisitorPage() {
               className="w-full h-20 bg-primary hover:bg-black text-white rounded-none text-2xl font-black uppercase tracking-tighter group transition-all"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Recording Visit...' : (
-                <span className="flex items-center gap-3">
+              {isSubmitting ? (
+                <span className="flex items-center justify-center gap-3 w-full">Recording Visit...</span>
+              ) : (
+                <span className="flex items-center justify-center gap-3 w-full">
                   Complete Check-in
                   <ArrowRight className="h-8 w-8 transition-transform group-hover:translate-x-3" />
                 </span>
